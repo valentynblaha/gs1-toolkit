@@ -1,0 +1,31 @@
+{
+  "name": "gs1-toolkit",
+  "version": "1.0.0",
+  "description": "A gs1-barcode parser. Based on code from https://github.com/flashcloud/gs1-parser",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest"
+  },
+  "keywords": [
+    "gs1",
+    "barcode",
+    "parsing",
+    "logistics"
+  ],
+  "author": "Valentyn Blaha",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "jiti": "^2.6.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "~8.46.4",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.9"
+  }
+}

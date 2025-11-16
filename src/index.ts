@@ -1,0 +1,1 @@
+export { GS1Parser } from "./gs1Barcode";

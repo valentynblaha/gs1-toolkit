@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GS1 - Test Page</title>
+  </head>
+  <body style="font-size: 20pt; margin: 0; padding: 20px; ">
+    <form style="display: flex; flex-direction: column; gap: 10px;">
+      <label for="gs1-input">Enter GS1 Code:</label>
+      <input type="text" id="gs1-input" name="gs1-input" style="font-size: 13pt; padding: 10px; width: 100%; box-sizing: border-box;" />
+      <button type="submit" style="font-size: 20pt;">Submit</button>
+    </form>
+    <div id="output" style="margin-top: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></div>
+  </body>
+  <script type="module">
+    import { GS1Parser } from "./src/index.ts";
+
+    const parser = new GS1Parser({
+      lotMaxLength: 20,
+    });
+
+    document.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const gs1Input = document.getElementById("gs1-input").value;
+      try {
+        const decodedData = parser.decode(gs1Input);
+        document.getElementById("output").textContent = decodedData.denormalized;
+        console.log("Decoded GS1 Data:", decodedData);
+      } catch (error) {
+        document.getElementById("output").textContent = "Error: " + error.message;
+        console.error("Error decoding GS1 code:", error);
+      }
+    });
+  </script>
+</html>
