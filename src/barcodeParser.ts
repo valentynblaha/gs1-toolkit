@@ -66,10 +66,10 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
       switch (secondNumber) {
         case "0":
           // SSCC (Serial Shipping Container Code)
-          return parseFixedLength("00", "SSCC", 18, codestring);
+          return parseFixedLength("00", "SSCC", 18, codestring, true);
         case "1":
           // Global Trade Item Number (GTIN)
-          return parseFixedLength("01", "GTIN", 14, codestring);
+          return parseFixedLength("01", "GTIN", 14, codestring, true);
         case "2":
           // GTIN of Contained Trade Items
           return parseFixedLength("02", "CONTENT", 14, codestring);
@@ -618,10 +618,10 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
                   return parseVariableLength("8017", "GSRN - PROVIDER", codestring, fncChar, 18); // should be 18 digits long
                 case "8":
                   // Global Service Relation Number to identify the relationship between an organisation offering services and the recipient of services
-                  return parseVariableLength("8018", "GSRN - RECIPIENT", codestring, fncChar, 18); // should be 18 digits long
+                  return parseVariableLength("8018", "GSRN - RECIPIENT", codestring, fncChar, 18, true); // should be 18 digits long
                 case "9":
                   // Service Relation Instance Number (SRIN)
-                  return parseVariableLength("8019", "SRIN", codestring, fncChar);
+                  return parseVariableLength("8019", "SRIN", codestring, fncChar, undefined, true);
                 default:
                   throw new InvalidAiError("801", fourthNumber);
               }

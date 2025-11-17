@@ -1,5 +1,12 @@
 import type { ParseResult } from "./types";
-import { BarcodeError, BarcodeErrorCodes, checkValidDate, InternalError, ParsedElementClass } from "./utils";
+import {
+  BarcodeError,
+  BarcodeErrorCodes,
+  checkValidDate,
+  InternalError,
+  NUMERIC_REGEX,
+  ParsedElementClass,
+} from "./utils";
 
 /**
  * Used for calculating numbers which are given as string
@@ -85,8 +92,15 @@ export function parseDate(ai: string, title: string, codestring: string): ParseR
  * @param {String} title  its title, i.e. its short description
  * @param {Number} length the fixed length
  * @param {String} codestring the codestring to parse from
+ * @param {Boolean} numeric whether the data is numeric or alphanumeric (default: false)
  */
-export function parseFixedLength(ai: string, title: string, length: number, codestring: string): ParseResult {
+export function parseFixedLength(
+  ai: string,
+  title: string,
+  length: number,
+  codestring: string,
+  numeric: boolean = false
+): ParseResult {
   const elementToReturn = new ParsedElementClass(ai, title, "S");
   const offSet = ai.length;
   const data = codestring.slice(offSet, length + offSet);
@@ -99,8 +113,16 @@ export function parseFixedLength(ai: string, title: string, length: number, code
     );
   }
 
-  elementToReturn.data = codestring.slice(offSet, length + offSet);
-  elementToReturn.dataString = codestring.slice(offSet, length + offSet);
+  if (numeric && !NUMERIC_REGEX.test(data)) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.NumericDataExpected,
+      "39",
+      `Numeric data expected for AI "${ai}", but got "${data}".`
+    );
+  }
+
+  elementToReturn.data = data;
+  elementToReturn.dataString = data;
   const codestringToReturn = codestring.slice(length + offSet, codestring.length);
   return { element: elementToReturn, codestring: codestringToReturn };
 }
@@ -114,13 +136,15 @@ export function parseFixedLength(ai: string, title: string, length: number, code
  * @param {String} codestring the codestring to parse from
  * @param {String} fncChar the FNC-character to use as terminator
  * @param {Number} maxLength the maximum length of the variable length element
+ * @param {Boolean} numeric whether the data is numeric or alphanumeric (default: false)
  */
 export function parseVariableLength(
   ai: string,
   title: string,
   codestring: string,
   fncChar: string,
-  maxLength?: number
+  maxLength?: number,
+  numeric: boolean = false
 ): ParseResult {
   const elementToReturn = new ParsedElementClass(ai, title, "S");
   const offSet = ai.length;
@@ -149,7 +173,15 @@ export function parseVariableLength(
     );
   }
 
-  elementToReturn.dataString = "" + elementToReturn.data;
+  if (numeric && !NUMERIC_REGEX.test(elementToReturn.data)) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.NumericDataExpected,
+      "39",
+      `Numeric data expected for AI "${ai}", but got "${elementToReturn.data}".`
+    );
+  }
+
+  elementToReturn.dataString = elementToReturn.data;
 
   return { element: elementToReturn, codestring: codestringToReturn };
 }

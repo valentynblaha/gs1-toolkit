@@ -1,6 +1,9 @@
+import type { GS1Field } from "./aiNames";
 import type { ElementType, GS1DecodedData, ParsedElement } from "./types";
 
 export const GROUP_SEPARATOR = String.fromCodePoint(29);
+
+export const NUMERIC_REGEX = /^\d+$/;
 
 export enum BarcodeErrorCodes {
   BarcodeNotANum = 1,
@@ -13,6 +16,7 @@ export enum BarcodeErrorCodes {
   InvalidNum,
   FixedLengthDataTooShort,
   EmptyVariableLengthData,
+  NumericDataExpected,
   UnknownErr,
 }
 
@@ -100,7 +104,7 @@ export class DecodeResult {
   constructor(
     public codeName: string,
     public denormalized: string,
-    public data: Record<string, ParsedElement> = {}
+    public data: Partial<Record<GS1Field, ParsedElement>> = {}
   ) {}
 }
 
