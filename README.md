@@ -1,185 +1,247 @@
-# JavaScript GS1 barcode parser
+# GS1 Barcode Parser
 
-### FORK FROM：https://github.com/PeterBrockfeld/BarcodeParser
- 
+[![NPM version](https://img.shields.io/npm/v/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/gs1-barcode-parser-ts)
+[![NPM downloads](https://img.shields.io/npm/dm/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/gs1-barcode-parser-ts)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/YOUR_GITHUB_REPO/build.yml?style=flat-square)](https://github.com/YOUR_GITHUB_REPO/actions)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Types Included](https://img.shields.io/badge/types-TypeScript-blue.svg?style=flat-square)](#)
+
+A modern TypeScript library for parsing GS1 barcodes, supporting both ESModule and CommonJS formats.
+
+### Based on work from: https://github.com/PeterBrockfeld/BarcodeParser
+
 ## Table of Contents
 
 * [Purpose](#purpose)
+* [Installation](#installation)
 * [Disclaimer](#disclaimer)
 * [The Specification](#the-specification)
-* [About GS1 barcodes](#about-gs1-barcodes)
- * [about the structure of GS1 barcodes](#about-the-structure-of-gs1-barcodes)
-* [Use case](#use-case)
-* [How to use it](#how-to-use-it)
- * [Limitations](#limitations)
-* [A simple scanning application as example](#a-simple-scanning-application-as-example)
-* [About barcode scanning devices](#about-barcode-scanning-devices)
- * [Keypress detecting](#key-press-detecting)
- * [The Barcodes](#the-barcodes)
-* [License](#license) 
-
+* [About GS1 Barcodes](#about-gs1-barcodes)
+  * [About the Structure of GS1 Barcodes](#about-the-structure-of-gs1-barcodes)
+* [Use Case](#use-case)
+* [How to Use It](#how-to-use-it)
+  * [ESModule Usage](#esmodule-usage)
+  * [CommonJS Usage](#commonjs-usage)
+  * [TypeScript Usage](#typescript-usage)
+  * [Limitations](#limitations)
+* [API Reference](#api-reference)
+* [About Barcode Scanning Devices](#about-barcode-scanning-devices)
+  * [The FNC1 Character](#the-fnc1-character)
+  * [Key Press Detecting](#key-press-detecting)
+* [Examples](#examples)
+* [What's New](#whats-new)
+* [License](#license)
 
 ## Purpose
 
-The barcode parser is a library for handling the contents of GS1 barcodes. GS1 barcodes are used for several purposes, from a humble barcode on a product you buy to complex barcodes describing the contents of a whole pallet. Especially the two dimensional barcodes can hold a *lot* of information.
+The barcode parser is a TypeScript library for handling the contents of GS1 barcodes. GS1 barcodes are used for various purposes, from simple product barcodes to complex codes describing the contents of an entire pallet. Two-dimensional barcodes can hold a significant amount of information, and this library makes it easier to access and process that data.
 
-The barcode parser makes it easier to access it.
+The barcode parser contains functions for parsing GS1 barcodes, yielding individual elements in a format easily processable by JavaScript and TypeScript applications.
 
-The barcode parser contains a single function for parsing GS1-barcodes, yielding the single elements in a format processable by JavaScript.
+The barcode parser is meant to be used in applications which:
 
-The barcode parser is meant to be used in JavaScript applications which 
+* Take data from a barcode scanning device or barcode reading application
+* Process the data
+* Perform actions based on the barcode contents
 
-* take data from a barcode scanning device or a barcode reading application 
-* process the data and
-* perform some action based on the contents of the barcode
+## Installation (not available yet)
+
+```bash
+npm install @valentynb/gs1-parser
+# or
+yarn add @valentynb/gs1-parser
+# or
+pnpm add @valentynb/gs1-parser
+```
 
 ## Disclaimer
 
-The library is my own humble interpretation of the GS1 specification. Neither is it endorsed, supported, approved or recommended by GS1, nor do I have any affiliations with GS1.
+This library is an independent interpretation of the GS1 specification. It is neither endorsed, supported, approved, nor recommended by GS1, and there are no affiliations with GS1.
 
 ## The Specification
 
-The full "GS1 General Specifications" can be found on http://www.gs1.org/genspecs. It's a 478 pages document. The barcode parser is based on the *Version 14, Issue 1, Jan 2014* of this specification.
+The full "GS1 General Specifications" can be found at [http://www.gs1.org/standards/genspecs](https://ref.gs1.org/standards/genspecs/). This library has been updated to comply with the **2025 version** of the GS1 specification.
 
-## About GS1 barcodes
+## About GS1 Barcodes
 
-GS1 barcodes are able to contain information about a product: its GTIN ("Global Trade Item Number", formerly known as UPC or EAN), the weight or dimensions of the item, its price, the lot/batch code, the date when it was fabricated and so on.
+GS1 barcodes can contain comprehensive product information including:
 
-### About the structure of GS1 barcodes
+* GTIN (Global Trade Item Number, formerly UPC or EAN)
+* Weight or dimensions
+* Price
+* Lot/batch code
+* Manufacturing date
+* Expiration date
+* And much more
 
-A GS1 barcode is a concatenation of *data elements*. Each single element starts with an *application identifier* ("AI"), a two to four digits number. The number is followed by the actual information.
+### About the Structure of GS1 Barcodes
 
-A *data element* is delimited either by
+A GS1 barcode is a concatenation of *data elements*. Each element starts with an *application identifier* (AI), a two to four digit number, followed by the actual information.
 
-* the end of the whole barcode,
-* a specification that states that this information has a fixed count of characters or digits
-* a special character (named FNC1)
+A *data element* is delimited by:
 
-The *application identifiers* and their properties are described in the third chapter of the "GS1 General Specifications" (see below).
+* The end of the barcode
+* A fixed character count specification
+* A special FNC1 character
 
-The GS1 barcode is started by a *symbology identifier*; a three character sequence denoting the type of barcode used. The *symbology identifier* is followed by an arbitrary number of *data elements*, thus the whole barcode represents a long string of digits, letters and some interspersed "FNC1"s.
+The *application identifiers* and their properties are described in the third chapter of the GS1 General Specifications.
 
-The BarcodeParser takes this string and decomposes it into its single elements.
+The GS1 barcode begins with a *symbology identifier* (a three-character sequence denoting the barcode type), followed by an arbitrary number of *data elements*. The parser decomposes this string into its individual elements.
 
-### Use case
+## Use Case
 
-You have a JavaScript application which takes barcodes in one of the GS1-formats. The conversion barcode → string has been made by a barcode scanning device or some other application. You got a string looking somehow like that:
+Your application receives a GS1 barcode as a string from a scanning device:
 
-    ]C101040123456789011715012910ABC1233932978471131030005253922471142127649716
-
-You want to extract some data out of the scanned code, e.g. the lot/batch number or the Best Before Date, and process it. The library takes the string and dissects it to an array of single elements:
-
-|AI | Title | Contents | Unit/Currency |
-|:-- |:-----|:-------|:--------------|
-|01 |GTIN | 04012345678901 | |
-|17 |USE BY OR EXPIRY | Thu Jan 29 2015 00:00:00 GMT+0100 (CET) | |
-|10 |BATCH/LOT | ABC123 | |
-|3932 |PRICE | 47.11 | 978 |
-|3103 |NET WEIGHT (kg) | 0.525 | KGM |
-|3922 |PRICE | 47.11 | |
-|421 |SHIP TO POST | 49716 | 276 |
-
-
-## How to use it
-
-The library is located in the `scripts` directory; in its uncompressed form and in a version minified with the `uglifyjs` tool (see https://github.com/mishoo/UglifyJS2).
-
-Load the library into your application:
-
-```html
-<script src="./scripts/BarcodeParser.js"></script>
+```
+]C101040123456789011715012910ABC1233932978471131030005253922471142127649716
 ```
 
-and use the single one function `parseBarcode()` of the library, handling over the barcode string:
+The library extracts and parses the data into structured elements:
 
-```javascript
+| AI | Title | Contents | Unit/Currency |
+|:---|:------|:---------|:--------------|
+| 01 | GTIN | 04012345678901 | |
+| 17 | USE BY OR EXPIRY | 2015-01-29 | |
+| 10 | BATCH/LOT | ABC123 | |
+| 3932 | PRICE | 47.11 | 978 |
+| 3103 | NET WEIGHT (kg) | 0.525 | KGM |
+| 3922 | PRICE | 47.11 | |
+| 421 | SHIP TO POST | 49716 | 276 |
+
+## How to Use It
+
+### ESModule Usage
+
+```typescript
+import { GS1Parser } from '@valentynb/gs1-parser';
+
+const gs1Parser = new GS1Parser(
+  {
+    lotMaxLength: 20 // If not specified, no limit is applied, except the one in the GS1 specs
+    fncChar: String.fromCodePoint(29); // If not specified, the GS char is used
+  }
+);
+
 try {
-        var barcode = document.getElementById("barcode").value,
-            answer = parseBarcode(barcode);
-        // handle the answer ...    
-} catch (e) {
-    alert(e);
+  const barcodeString = document.getElementById("barcode").value;
+  // returns a DecodeResult object or throws an Error in case of parsing errors
+  const result = gs1Parser.decode(barcodeString);
+  
+  console.log(result.codeName); // e.g., "GS1-128"
+  console.log(result.denormalized); // Full barcode with parentheses
+  console.log(result.data); // Dictionary of parsed elements
+} catch (error) {
+  console.error('Barcode parsing failed:', error);
 }
 ```
 
-The function returns an object containing two elements:
+### CommonJS Usage
 
-* `codeName`: a barcode type identifier (a simple string denoting the type of barcode) and
-* `parsedCodeItems`: an array of objects, each with four attributes:
- * `ai`: the application identifier
- * `title`: the title of the element, i.e. a short description
- * `data`: the contents, either a string, a number or a date
- * `unit`: the unit of measurement, a country code, a currency; denoted in ISO codes.
+```javascript
+const { parseBarcode } = require('@valentynb/gs1-parser');
 
-From the example above: `parseBarcode()` will return an object with "GS1-128" in its attribute `codeName`, the fourth element of `parsedCodeItems` is an object which has the attributes
+try {
+  const result = parseBarcode(barcodeString);
+  // Process result...
+} catch (error) {
+  console.error('Barcode parsing failed:', error);
+}
+```
 
-* "3932" as `ai`,
-* "PRICE" as `title`,
-* "47.11" as `data` (a floating point number) and
-* "978" as `unit` (the ISO code for €)
+### TypeScript Usage
 
-Some remarks about how the function works can be found in `README_scripts.md` within the `scripts` folder.
+The library is written in TypeScript and includes full type definitions:
+
+```typescript
+import { GS1Parser, BarcodeResult, ParsedElement } from '@valentynb/gs1-parser';
+
+const gs1Parser = new GS1Parser(
+  {
+    lotMaxLength: 20 // If not specified, no limit is applied, except the one in the GS1 specs
+    fncChar: String.fromCodePoint(29); // If not specified, the GS char is used
+  }
+);
+
+try {
+  const result: BarcodeResult = gs1Parser.decode(barcodeString);
+  
+  result.data.values().forEach((item: ParsedElement) => {
+    console.log(`AI: ${item.ai}`);
+    console.log(`Title: ${item.dataTitle}`);
+    console.log(`Data: ${item.data}`);
+    console.log(`Unit: ${item.unit || 'N/A'}`);
+  });
+} catch (error) {
+  console.error('Error:', error);
+}
+```
 
 ### Limitations
 
-The `parseBarcode()` function doesn't do any checks for plausibility. If the code you handle over to the function contains e.g. an invalid GTIN or some invalid ISO code the function will happily return this invalid content.
+The `decode()` method does not perform plausibility checks (as of now). If the barcode contains invalid data (e.g., an invalid GTIN or ISO code), the function will return this invalid content without validation.
 
-## A simple scanning application as example
+## API Reference
 
-The directory `Example` contains an example using the barcode parser. It has three components:
+### `GS1Parser.decode(barcode: string): BarcodeResult`
 
-* a HTML page with 
- * a form for input and 
- * a (empty) `<table>` for the output,
-* some JavaScript code for 
- * accessing the input, 
- * calling the `parseBarcode()` function and 
- * filling the table using the returned object
-* some CSS for styling the page
+Parses a GS1 barcode string and returns structured data.
 
-If you have no scanning device at hand, you can use the string in "ScannedBarcode.txt" to copy &amp; paste it into the input field of the example.
+**Parameters:**
+- `barcode` (string): The barcode string to parse
 
-## About barcode scanning devices
+**Returns:** `BarcodeResult` object containing:
+- `codeName` (string): Barcode type identifier (e.g., "GS1-128", "GS1-DataMatrix")
+- `parsedCodeItems` (ParsedCodeItem[]): Array of parsed data elements
 
-GS1 barcodes are usually scanned using a barcode scanning device. If you use GS1 barcodes with a web application, you'll probably have a setup where the barcode scanner behaves as a keyboard ("HID").
+**ParsedCodeItem structure:**
+- `ai` (string): Application identifier
+- `title` (string): Description of the data element
+- `data` (string | number | Date): The actual content
+- `unit` (string | undefined): Unit of measurement, country code, or currency (ISO codes)
 
-This works fine for most characters, but has one big drawback: the FNC1.
+## About Barcode Scanning Devices
 
-### The FNC1
+GS1 barcodes are typically scanned using hardware barcode scanners configured as HID (Human Interface Device) keyboards. This works well for most characters but presents challenges with the FNC1 character.
+
+### The FNC1 Character
 
 The FNC1 is a non-printable control character used to delimit GS1 Element Strings of variable length.
 
-The barcode types GS1 DataMatrix and GS1 QR Code use the ASCII group separator ("GS", ASCII 29, 0x1D; Unicode U+001D) as FNC1.
+GS1 DataMatrix and GS1 QR Code use ASCII Group Separator (GS, ASCII 29, 0x1D, Unicode U+001D) as FNC1.
 
-This non-printable character won't be found on any keyboard. So the scanner sends a Ctrl-sequence as a replacement. The canonical sequence for GS is "Ctrl"+"]".
+Since this character isn't on standard keyboards, scanners send control sequences as replacements. The canonical sequence is `Ctrl + ]`.
 
-So if you use a ```<input>``` field in your website the browser will receive the control sequence "Ctrl" + "]". Depending on your setup the browser will react in some way to this control sequence.
+**Important:** Keyboard layout matters! A scanner emulating a German keyboard may send `Ctrl + +` instead of `Ctrl + ]`, which can trigger browser zoom. You'll need to:
 
-Things get messy when you use a non-english keyboard. For example: on german keyboards the key left beside the enter key is used for the "+" sign. On an english keyboard there is the "]". If the scanner is operated as a HID **and** configured to behave like a *german* keyboard, the scanner sends "Ctrl" + "+", which causes most browsers to increase their zoom factor.
-
-So you have two things to do:
-
-* identify the sequence your scanner sends to the browser when a group separator is scanned
-* catch these keyboard events and transform them into a group separator within the input field
-
-The ```BarcodeParserUsageExample.js``` does the latter part for a scanner which sends (emulating a german keyboard) a "Ctrl" + "+" if it encounters a group separator in the barcode.
+1. Identify the sequence your scanner sends
+2. Catch and transform these keyboard events into proper group separators
 
 ### Key Press Detecting
 
-The directory ```KeypressDetecting``` contains a simple HTML page to explore what kind of control sequence *your* scanner sends. It has an input field and logs the values (```keyCode```, ```charCode``` and ```which```) of the keypresses to the console.
+To determine what control sequence your scanner sends, create a simple test page that logs keyboard events (`keyCode`, `charCode`, `which`) to the console when scanning test barcodes containing the GS character.
 
-### The Barcodes
+## Examples
 
-As an example the directory `Barcodes` contains five barcodes, three of them containing the same data:
+Example usage and test barcodes are included in the repository, demonstrating:
 
-* a GS1-128-Code,
-* a GS1-DataMatrix-Code and 
-* a GS1-QR-Code.
+* Basic parsing operations
+* Handling different barcode formats (GS1-128, DataMatrix, QR Code)
+* Working with FNC1 characters
+* Building scanning applications
 
-The other two just contain three characters: "1", the "&lt;GS&gt;" group separator and "3". They can be used to find out what *your* scanner sends when it encounters a "&lt;GS&gt;" in a barcode.
+## What's New
 
-You can print them using the "ExamplesForBarcode.pdf".
+This modernized version includes:
+
+* **TypeScript**: Full TypeScript rewrite with complete type definitions
+* **Dual Module Support**: Works with both ESModule (`import`) and CommonJS (`require`)
+* **Updated Specification**: Complies with 2025 GS1 General Specifications
+* **Reorganized Code**: Improved code structure and maintainability
+* **Modern Build System**: Compatible with current JavaScript tooling
 
 ## License
 
-Copyright (c) 2014-2015 Peter Brockfeld. See the LICENSE.md file for license rights and limitations (MIT).
+Copyright (c) 2014-2015 Peter Brockfeld (original version)  
+Copyright (c) 2025 Valentyn Blaha (This version)
+
+See the LICENSE.md file for license rights and limitations (MIT).
