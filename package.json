@@ -7,8 +7,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean --minify",
+    "build": "tsup src/index.ts --dts --format esm,cjs --clean --minify --keep-names",
     "test": "vitest"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "keywords": [
     "gs1",
