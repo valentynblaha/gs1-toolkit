@@ -850,11 +850,11 @@ function handleInternalError(error: InternalError): never {
     case "32":
       throw new BarcodeError(BarcodeErrorCodes.InvalidNormalAI, 32, "Invalid normal AI.");
     case "33":
-      throw new BarcodeError(BarcodeErrorCodes.InvalidDate, 33, "L'anno nella data non è valido.");
+      throw new BarcodeError(BarcodeErrorCodes.InvalidDate, 33, "The year of the date is not valid.");
     case "34":
-      throw new BarcodeError(BarcodeErrorCodes.InvalidDate, 34, "Il mese nella data non è valido.");
+      throw new BarcodeError(BarcodeErrorCodes.InvalidDate, 34, "The month of the date is not valid.");
     case "36":
-      throw new BarcodeError(BarcodeErrorCodes.InvalidNum, 36, "Numeri non validi");
+      throw new BarcodeError(BarcodeErrorCodes.InvalidNum, 36, "Invalid numbers");
     default:
       throw error;
   }

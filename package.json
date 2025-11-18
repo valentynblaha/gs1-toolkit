@@ -10,6 +10,9 @@
     "build": "tsup src/index.ts --dts --format esm,cjs --clean --minify --keep-names",
     "test": "vitest"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
