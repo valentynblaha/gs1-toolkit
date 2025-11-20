@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/@valentynb/gs1-parser)
 [![NPM downloads](https://img.shields.io/npm/dm/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/@valentynb/gs1-parser)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/YOUR_GITHUB_REPO/build.yml?style=flat-square)](https://github.com/valentynblaha/gs1-parser/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/YOUR_GITHUB_REPO/publish.yml?style=flat-square)](https://github.com/valentynblaha/gs1-parser/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Types Included](https://img.shields.io/badge/types-TypeScript-blue.svg?style=flat-square)](#)
 
@@ -44,7 +44,7 @@ The barcode parser is meant to be used in applications which:
 * Process the data
 * Perform actions based on the barcode contents
 
-## Installation (not available yet)
+## Installation
 
 ```bash
 npm install @valentynb/gs1-parser
@@ -186,17 +186,16 @@ The `decode()` method does not perform plausibility checks (as of now). If the b
 
 Parses a GS1 barcode string and returns structured data.
 
-**Parameters:**
-- `barcode` (string): The barcode string to parse
-
 **Returns:** `BarcodeResult` object containing:
 - `codeName` (string): Barcode type identifier (e.g., "GS1-128", "GS1-DataMatrix")
-- `parsedCodeItems` (ParsedCodeItem[]): Array of parsed data elements
+- `data` (Partial<Record<GS1Field, ParsedElement>>): Dictionary of parsed data elements
+- `denormalized` (string): The original barcode in human readable form, with parentheses surrounding each AI
 
 **ParsedCodeItem structure:**
 - `ai` (string): Application identifier
-- `title` (string): Description of the data element
 - `data` (string | number | Date): The actual content
+- `dataTitle` (string): Description of the data element
+- `dataString` (string): The substring that is being parsed
 - `unit` (string | undefined): Unit of measurement, country code, or currency (ISO codes)
 
 ## About Barcode Scanning Devices

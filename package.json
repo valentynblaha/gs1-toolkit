@@ -1,7 +1,7 @@
 {
   "name": "@valentynb/gs1-parser",
   "version": "1.0.0",
-  "description": "A typescript gs1-barcode parser. Based on code from https://github.com/flashcloud/gs1-parser",
+  "description": "A typescript gs1-barcode parser. Based on code from https://github.com/PeterBrockfeld/BarcodeParser",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
