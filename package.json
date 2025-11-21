@@ -28,6 +28,10 @@
   "author": "Valentyn Blaha",
   "license": "MIT",
   "homepage": "https://github.com/valentynblaha/gs1-parser#readme",
+  "repository": {
+    "url": "git+https://github.com/valentynblaha/gs1-parser.git",
+    "type": "git"
+  },
   "bugs": {
     "url": "https://github.com/valentynblaha/gs1-parser/issues"
   },
