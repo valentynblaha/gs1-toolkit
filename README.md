@@ -1,8 +1,8 @@
 # GS1 Barcode Parser
 
-[![NPM version](https://img.shields.io/npm/v/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/@valentynb/gs1-parser)
-[![NPM downloads](https://img.shields.io/npm/dm/gs1-barcode-parser-ts.svg?style=flat-square)](https://www.npmjs.com/package/@valentynb/gs1-parser)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/YOUR_GITHUB_REPO/publish.yml?style=flat-square)](https://github.com/valentynblaha/gs1-parser/actions)
+[![NPM version](https://img.shields.io/npm/v/%40valentynb%2Fgs1-parser)](https://www.npmjs.com/package/@valentynb/gs1-parser)
+[![NPM downloads](https://img.shields.io/npm/dm/%40valentynb%2Fgs1-parser)](https://www.npmjs.com/package/@valentynb/gs1-parser)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/valentynblaha/gs1-parser/publish.yml)](https://github.com/valentynblaha/gs1-parser/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Types Included](https://img.shields.io/badge/types-TypeScript-blue.svg?style=flat-square)](#)
 
