@@ -4,6 +4,7 @@ import {
   BarcodeErrorCodes,
   checkValidDate,
   InternalError,
+  InvalidAiError,
   NUMERIC_REGEX,
   ParsedElementClass,
 } from "./utils";
@@ -246,8 +247,21 @@ export function parseFixedLengthMeasure(
 ): ParseResult {
   const elementToReturn = new ParsedElementClass(ai_stem + fourthNumber, title, "N");
   const offSet = ai_stem.length + 1;
+
+  if (!NUMERIC_REGEX.test(fourthNumber)) {
+    throw new InvalidAiError(ai_stem, fourthNumber);
+  }
+
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
   const numberPart = codestring.slice(offSet, offSet + 6);
+
+  if (!NUMERIC_REGEX.test(numberPart)) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.NumericDataExpected,
+      "39",
+      `Numeric data expected for AI "${ai_stem + fourthNumber}", but got "${numberPart}".`
+    );
+  }
 
   elementToReturn.data = parseFloatingPoint(numberPart, numberOfDecimals);
   elementToReturn.dataString = numberPart;

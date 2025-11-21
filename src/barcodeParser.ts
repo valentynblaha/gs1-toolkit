@@ -139,7 +139,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               return parseVariableLength("241", "CUST. PART NO.", codestring, fncChar, 30);
             case "2":
               // Made-to-Order Variation Number
-              return parseVariableLength("242", "MTO VARIANT", codestring, fncChar, 6);
+              return parseVariableLength("242", "MTO VARIANT", codestring, fncChar, 6, true);
             case "3":
               // Packaging Component Number
               return parseVariableLength("243", "PCN", codestring, fncChar, 20);
@@ -165,7 +165,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               return parseVariableLength("254", "GLN EXTENSION COMPONENT", codestring, fncChar, 20);
             case "5":
               // Global Coupon Number (GCN)
-              return parseVariableLength("255", "GCN", codestring, fncChar, 37);
+              return parseVariableLength("255", "GCN", codestring, fncChar, 25, true);
             default:
               throw new InvalidAiError("25", thirdNumber);
           }
@@ -177,7 +177,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
       switch (secondNumber) {
         case "0":
           // Count of Items (Variable Measure Trade Item)
-          return parseVariableLength("30", "VAR. COUNT", codestring, fncChar, 8);
+          return parseVariableLength("30", "VAR. COUNT", codestring, fncChar, 8, true);
         case "1":
           // third and fourth numbers matter:
           thirdNumber = codestring.slice(2, 3);
@@ -433,7 +433,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               return parseVariableLength("401", "GINC", codestring, fncChar);
             case "2":
               // Global Shipment Identification Number (GSIN)
-              return parseVariableLength("402", "GSIN", codestring, fncChar, 17); // should be 17 digits long
+              return parseVariableLength("402", "GSIN", codestring, fncChar, 17, true); // should be 17 digits long
             case "3":
               // Routing Code
               return parseVariableLength("403", "ROUTE", codestring, fncChar, 30);
@@ -446,28 +446,28 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
           switch (thirdNumber) {
             case "0":
               // Ship to - Deliver to Global Location Number
-              return parseFixedLength("410", "SHIP TO LOC", 13, codestring);
+              return parseFixedLength("410", "SHIP TO LOC", 13, codestring, true);
             case "1":
               // Bill to - Invoice to Global Location Number
-              return parseFixedLength("411", "BILL TO", 13, codestring);
+              return parseFixedLength("411", "BILL TO", 13, codestring, true);
             case "2":
               // Purchased from Global Location Number
-              return parseFixedLength("412", "PURCHASE FROM", 13, codestring);
+              return parseFixedLength("412", "PURCHASE FROM", 13, codestring, true);
             case "3":
               // Ship for - Deliver for - Forward to Global Location Number
-              return parseFixedLength("413", "SHIP FOR LOC", 13, codestring);
+              return parseFixedLength("413", "SHIP FOR LOC", 13, codestring, true);
             case "4":
               // Identification of a physical location - Global Location Number (GLN)
-              return parseFixedLength("414", "LOC NO", 13, codestring);
+              return parseFixedLength("414", "LOC NO", 13, codestring, true);
             case "5":
               // Global Location Number (GLN) of the invoicing party
-              return parseFixedLength("415", "PAY TO", 13, codestring);
+              return parseFixedLength("415", "PAY TO", 13, codestring, true);
             case "6":
               // Global Location Number (GLN) of the production or service location
-              return parseFixedLength("416", "PROD/SERV LOC", 13, codestring);
+              return parseFixedLength("416", "PROD/SERV LOC", 13, codestring, true);
             case "7":
               // Party Global Location Number (GLN)
-              return parseFixedLength("417", "PARTY", 13, codestring);
+              return parseFixedLength("417", "PARTY", 13, codestring, true);
             default:
               throw new InvalidAiError("41", thirdNumber);
           }
@@ -483,27 +483,27 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               return parseVariableLengthWithISOChars("421", "SHIP TO POST", codestring, fncChar);
             case "2":
               // Country of Origin of a Trade Item
-              return parseFixedLength("422", "ORIGIN", 3, codestring);
+              return parseFixedLength("422", "ORIGIN", 3, codestring, true);
             case "3":
               // Country of Initial Processing
               // Up to 5 3-digit ISO-countrycodes
               return parseVariableLength("423", "COUNTRY - INITIAL PROCESS.", codestring, fncChar, 15);
             case "4":
               // Country of Processing
-              return parseFixedLength("424", "COUNTRY - PROCESS.", 3, codestring);
+              return parseFixedLength("424", "COUNTRY - PROCESS.", 3, codestring, true);
             case "5":
               // Country of Disassembly
-              return parseFixedLength("425", "COUNTRY - DISASSEMBLY", 3, codestring);
+              return parseFixedLength("425", "COUNTRY - DISASSEMBLY", 3, codestring, true);
             case "6":
               // Country Covering full Process Chain
-              return parseFixedLength("426", "COUNTRY - FULL PROCESS", 3, codestring);
+              return parseFixedLength("426", "COUNTRY - FULL PROCESS", 3, codestring, true);
             case "7":
               // Country Subdivision of Origin
               return parseVariableLength("427", "ORIGIN SUBDIVISION", codestring, fncChar, 3);
             default:
               throw new InvalidAiError("42", thirdNumber);
           }
-        // TODO: implement AIs 430 to 439 (Transport Related AIs)
+        // TODO: implement AIs 4300 to 4333 (Transport Related AIs)
         default:
           throw new InvalidAiError("4", secondNumber);
       }
@@ -520,20 +520,64 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               switch (fourthNumber) {
                 case "1":
                   // NATO Stock Number (NSN)
-                  return parseVariableLength("7001", "NSN", codestring, fncChar, 13); //should be 13 digits long
+                  return parseVariableLength("7001", "NSN", codestring, fncChar, 13, true); //should be 13 digits long
                 case "2":
                   // UN/ECE Meat Carcasses and Cuts Classification
                   return parseVariableLength("7002", "MEAT CUT", codestring, fncChar);
                 case "3":
                   // Expiration Date and Time
-                  return parseVariableLength("7003", "EXPIRY TIME", codestring, fncChar, 10); //should be 10 digits long
+                  return parseVariableLength("7003", "EXPIRY TIME", codestring, fncChar, 10, true); //should be 10 digits long
                 case "4":
                   // Active Potency
-                  return parseVariableLength("7004", "ACTIVE POTENCY", codestring, fncChar, 6);
+                  return parseVariableLength("7004", "ACTIVE POTENCY", codestring, fncChar, 4, true);
+                case "5":
+                  // Catch area
+                  return parseVariableLength("7005", "CATCH AREA", codestring, fncChar, 12);
+                case "6":
+                  // First freeze date
+                  return parseDate("7006", "FIRST FREEZE DATE", codestring);
+                case "7":
+                  // Harvest date
+                  // FIXME: actually a double date (start date - end date)
+                  return parseVariableLength("7007", "HARVEST DATE", codestring, fncChar, 12, true);
+                case "8":
+                  // Species for fishery purposes
+                  return parseVariableLength("7008", "AQUATIC SPECIES", codestring, fncChar, 3);
+                case "9":
+                  // Fishing gear type
+                  return parseVariableLength("7009", "FISHING GEAR TYPE", codestring, fncChar, 10);
                 default:
-                  throw new InvalidAiError("70", thirdNumber);
+                  throw new InvalidAiError("700", fourthNumber);
               }
-            // 1 and 2 are not used
+            case "1":
+              switch (fourthNumber) {
+                case "0":
+                  // Production method
+                  return parseVariableLength("7010", "PROD METHOD", codestring, fncChar, 2);
+                case "1":
+                  // Test by date
+                  // FIXME: actually a datetime (yyMMddHHmm)
+                  return parseVariableLength("7011", "TEST BY DATE", codestring, fncChar, 10, true);
+                default:
+                  throw new InvalidAiError("701", fourthNumber);
+              }
+            case "2":
+              switch (fourthNumber) {
+                case "0":
+                  // Refurbishment lot ID
+                  return parseVariableLength("7020", "REFURB LOT", codestring, fncChar, 20);
+                case "1":
+                  // Functional status
+                  return parseVariableLength("7021", "FUNC STAT", codestring, fncChar, 20);
+                case "2":
+                  // Revision status
+                  return parseVariableLength("7022", "REV STAT", codestring, fncChar, 20);
+                case "3":
+                  // Global Individual Asset Identifier of an assembly
+                  return parseVariableLength("7023", "GIAI - ASSEMBLY", codestring, fncChar, 30);
+                default:
+                  throw new InvalidAiError("702", fourthNumber);
+              }
             case "3":
               // Approval Number of Processor with ISO Country Code
 
@@ -545,6 +589,8 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
                 codestring,
                 fncChar
               );
+
+            // TODO: AIs 7040 and 7041
             default:
               throw new InvalidAiError("70", thirdNumber);
           }
@@ -563,9 +609,20 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
             case "3":
               // National Healthcare Reimbursement Number (NHRN) – Brasil DRN
               return parseVariableLength("713", "NHRN DRN", codestring, fncChar);
+            case "4":
+              // National Healthcare Reimbursement Number (NHRN) – Portugal AIM
+              return parseVariableLength("714", "NHRN AIM", codestring, fncChar);
+            case "5":
+              // National Healthcare Reimbursement Number (NHRN) – United States of America NDC
+              return parseVariableLength("715", "NHRN NDC", codestring, fncChar);
+            case "6":
+              // National Healthcare Reimbursement Number (NHRN) – Italy AIC
+              return parseVariableLength("716", "NHRN AIC", codestring, fncChar);
             default:
               throw new InvalidAiError("71", thirdNumber);
           }
+
+        // TODO: add AIs from 723s to 7259
         default:
           throw new InvalidAiError("7", secondNumber);
       }
@@ -630,8 +687,19 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
                 case "0":
                   // Payment Slip Reference Number
                   return parseVariableLength("8020", "REF No", codestring, fncChar);
+                case "6":
+                  // Identification of pieces of a trade item (ITIP) contained in a logistic unit
+                  return parseVariableLength("8026", "ITIP CONTENT", codestring, fncChar, 18, true);
                 default:
                   throw new InvalidAiError("802", fourthNumber);
+              }
+            case "3":
+              switch (fourthNumber) {
+                case "0":
+                  // Digital Signature (DigSig)
+                  return parseVariableLength("8030", "DIGSIG", codestring, fncChar);
+                default:
+                  throw new InvalidAiError("803", fourthNumber);
               }
             default:
               throw new InvalidAiError("80", thirdNumber);
@@ -640,25 +708,17 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
           thirdNumber = codestring.slice(2, 3);
           fourthNumber = codestring.slice(3, 4);
           switch (thirdNumber) {
-            case "0":
-              switch (fourthNumber) {
-                case "0":
-                  // GS1-128 Coupon Extended Code
-                  return parseVariableLength("8100", "-", codestring, fncChar, 6); //should be 6 digits long
-                case "1":
-                  // GS1-128 Coupon Extended Code
-                  return parseVariableLength("8101", "-", codestring, fncChar, 10); //should be 10 digits long
-                case "2":
-                  // GS1-128 Coupon Extended Code
-                  return parseVariableLength("8102", "-", codestring, fncChar, 2); //should be 2 digits long
-                default:
-                  throw new InvalidAiError("810", fourthNumber);
-              }
             case "1":
               switch (fourthNumber) {
                 case "0":
                   // Coupon Code Identification for Use in North America
                   return parseVariableLength("8110", "-", codestring, fncChar);
+                case "1":
+                  // Loyalty points of a coupon
+                  return parseVariableLength("8111", "POINTS", codestring, fncChar, 4, true);
+                case "2":
+                  // Positive offer file coupon code identification for use in North America
+                  return parseVariableLength("8112", "-", codestring, fncChar);
                 default:
                   throw new InvalidAiError("811", fourthNumber);
               }
@@ -681,7 +741,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
       switch (secondNumber) {
         case "0":
           // Information Mutually Agreed Between Trading Partners
-          return parseVariableLength("90", "INTERNAL", codestring, fncChar);
+          return parseVariableLength("90", "INTERNAL", codestring, fncChar, 30);
         case "1":
           // Company Internal Information
           return parseVariableLength("91", "INTERNAL", codestring, fncChar);
@@ -736,13 +796,8 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
  * @returns {Array}    an array with elements which are objects of type "ParsedElement"
  */
 function parseBarcode(barcode: string, fncChar: string, lotLen?: number): BarcodeAnswer {
-
   if (!barcode || typeof barcode !== "string") {
-    throw new BarcodeError(
-      BarcodeErrorCodes.EmptyBarcode,
-      "31",
-      "The barcode is empty or not a string."
-    );
+    throw new BarcodeError(BarcodeErrorCodes.EmptyBarcode, "31", "The barcode is empty or not a string.");
   }
 
   const barcodelength = barcode.length;
