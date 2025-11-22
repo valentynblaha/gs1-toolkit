@@ -6,8 +6,9 @@
   "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsup src/index.ts --dts --format esm,cjs --clean --minify --keep-names",
+    "dev": "vite",
+    "docs": "typedoc",
     "test": "vitest"
   },
   "publishConfig": {
@@ -41,6 +42,7 @@
     "globals": "^16.5.0",
     "jiti": "^2.6.1",
     "tsup": "^8.5.1",
+    "typedoc": "^0.28.14",
     "typescript": "~5.9.3",
     "typescript-eslint": "~8.46.4",
     "vite": "^7.2.2",

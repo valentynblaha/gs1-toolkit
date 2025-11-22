@@ -4,20 +4,23 @@ import type { BarcodeAnswer, ParsedElement, ParserOptions } from "./types";
 import { DecodeResult, GROUP_SEPARATOR } from "./utils";
 
 class GS1Parser {
-  public fncChar: string;
-  public lotLen?: number;
+  protected fncChar: string;
+  protected lotLen?: number;
 
   /**
    * Builds a GS1 barcode parser
-   * @param options
-   * @param options.fncChar The function character used as a separator in variable length fields. Default is ASCII 29 (Group Separator).
-   * @param options.lotMaxLength The maximum length for lot/batch numbers. If not provided, no maximum length is enforced.
+   * @param options Barcode parser options
    */
   constructor(options?: ParserOptions) {
     this.fncChar = options?.fncChar || GROUP_SEPARATOR;
     this.lotLen = options?.lotMaxLength;
   }
 
+  /**
+   * Performs the actual parsing
+   * @param barcode The barcode to be parsed
+   * @returns Parsed data
+   */
   decode(barcode: string): DecodeResult {
     // Replace ( with GS separator (ASCII 29) and remove )
     let normalized = barcode.replaceAll("(", this.fncChar).replaceAll(")", "");

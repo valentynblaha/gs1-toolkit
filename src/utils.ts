@@ -100,10 +100,22 @@ export class ParsedElementClass implements ParsedElement {
   }
 }
 
+/**
+ * The result returned by {@link GS1Parser#decode}
+ */
 export class DecodeResult {
   constructor(
+    /**
+     * A barcode type identifier (a simple string denoting the type of barcode)
+     */
     public codeName: string,
+    /**
+     * Human readable full barcode, with parentheses surrounding AIs
+     */
     public denormalized: string,
+    /**
+     * The actual parsed data, presented in a dictionary
+     */
     public data: Partial<Record<GS1Field, ParsedElement>> = {}
   ) {}
 }
@@ -130,7 +142,6 @@ export function cleanCodestring(stringToClean: string, fncChar: string): string 
 }
 
 export function checkValidDate(year: number, month: number, day: number): boolean {
-  
   // Month must be between 0 and 11
   if (month < 0 || month > 11) return false;
 
@@ -144,9 +155,7 @@ export function checkValidDate(year: number, month: number, day: number): boolea
 
   // Check that JS didn’t overflow into the next month
   const isValid =
-    date.getFullYear() === year &&
-    date.getMonth() === month &&
-    (date.getDate() === day || (day === 0)); // Allow day 00 as valid (represents unknown day)
+    date.getFullYear() === year && date.getMonth() === month && (date.getDate() === day || day === 0); // Allow day 00 as valid (represents unknown day)
 
   return isValid;
 }

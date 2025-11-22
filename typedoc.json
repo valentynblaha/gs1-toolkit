@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "tsconfig": "tsconfig.json",
+  "includeVersion": true,
+  "cleanOutputDir": true,
+  "hideGenerator": true,
+  "entryPointStrategy": "expand",
+  "disableSources": true
+}

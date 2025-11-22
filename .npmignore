@@ -2,6 +2,7 @@
 
 src
 test
+docs
 eslint.config.ts
 tsconfig.json
 vitest.config.ts

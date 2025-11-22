@@ -28,7 +28,6 @@ A modern TypeScript library for parsing GS1 barcodes, supporting both ESModule a
 * [About Barcode Scanning Devices](#about-barcode-scanning-devices)
   * [The FNC1 Character](#the-fnc1-character)
   * [Key Press Detecting](#key-press-detecting)
-* [Examples](#examples)
 * [What's New](#whats-new)
 * [License](#license)
 
@@ -117,8 +116,11 @@ import { GS1Parser } from '@valentynb/gs1-parser';
 
 const gs1Parser = new GS1Parser(
   {
-    lotMaxLength: 20 // If not specified, no limit is applied, except the one in the GS1 specs
-    fncChar: String.fromCodePoint(29); // If not specified, the GS char is used
+    // If not specified, no limit is applied, except the one in the GS1 specs
+    lotMaxLength: 20
+
+    // If not specified, the GS char is used
+    fncChar: String.fromCodePoint(29);
   }
 );
 
@@ -138,10 +140,12 @@ try {
 ### CommonJS Usage
 
 ```javascript
-const { parseBarcode } = require('@valentynb/gs1-parser');
+const { GS1Parser } = require('@valentynb/gs1-parser');
+
+const gs1Parser = new GS1Parser();
 
 try {
-  const result = parseBarcode(barcodeString);
+  const result = gs1Parser.decode(barcodeString);
   // Process result...
 } catch (error) {
   console.error('Barcode parsing failed:', error);
@@ -153,17 +157,12 @@ try {
 The library is written in TypeScript and includes full type definitions:
 
 ```typescript
-import { GS1Parser, BarcodeResult, ParsedElement } from '@valentynb/gs1-parser';
+import { GS1Parser, DecodeResult, ParsedElement } from '@valentynb/gs1-parser';
 
-const gs1Parser = new GS1Parser(
-  {
-    lotMaxLength: 20 // If not specified, no limit is applied, except the one in the GS1 specs
-    fncChar: String.fromCodePoint(29); // If not specified, the GS char is used
-  }
-);
+const gs1Parser = new GS1Parser();
 
 try {
-  const result: BarcodeResult = gs1Parser.decode(barcodeString);
+  const result: DecodeResult = gs1Parser.decode(barcodeString);
   
   result.data.values().forEach((item: ParsedElement) => {
     console.log(`AI: ${item.ai}`);
@@ -182,14 +181,14 @@ The `decode()` method does not perform plausibility checks (as of now). If the b
 
 ## API Reference
 
-### `GS1Parser.decode(barcode: string): BarcodeResult`
+### `decode(barcode: string): BarcodeResult`
 
 Parses a GS1 barcode string and returns structured data.
 
 **Returns:** `BarcodeResult` object containing:
-- `codeName` (string): Barcode type identifier (e.g., "GS1-128", "GS1-DataMatrix")
-- `data` (Partial<Record<GS1Field, ParsedElement>>): Dictionary of parsed data elements
-- `denormalized` (string): The original barcode in human readable form, with parentheses surrounding each AI
+- `codeName`: `string` - Barcode type identifier (e.g., "GS1-128", "GS1-DataMatrix")
+- `data`: `Partial<Record<GS1Field, ParsedElement>>` - Dictionary of parsed data elements
+- `denormalized`: `string` - The original barcode in human readable form, with parentheses surrounding each AI
 
 **ParsedCodeItem structure:**
 - `ai` (string): Application identifier
@@ -218,15 +217,6 @@ Since this character isn't on standard keyboards, scanners send control sequence
 ### Key Press Detecting
 
 To determine what control sequence your scanner sends, create a simple test page that logs keyboard events (`keyCode`, `charCode`, `which`) to the console when scanning test barcodes containing the GS character.
-
-## Examples
-
-Example usage and test barcodes are included in the repository, demonstrating:
-
-* Basic parsing operations
-* Handling different barcode formats (GS1-128, DataMatrix, QR Code)
-* Working with FNC1 characters
-* Building scanning applications
 
 ## What's New
 
