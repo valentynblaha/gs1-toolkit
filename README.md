@@ -3,12 +3,15 @@
 [![NPM version](https://img.shields.io/npm/v/%40valentynb%2Fgs1-parser)](https://www.npmjs.com/package/@valentynb/gs1-parser)
 [![NPM downloads](https://img.shields.io/npm/dm/%40valentynb%2Fgs1-parser)](https://www.npmjs.com/package/@valentynb/gs1-parser)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/valentynblaha/gs1-parser/publish.yml)](https://github.com/valentynblaha/gs1-parser/actions)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Types Included](https://img.shields.io/badge/types-TypeScript-blue.svg?style=flat-square)](#)
+[![Docs](https://img.shields.io/badge/docs-online-success)](https://valentynblaha.github.io/gs1-parser/)
+[![Deploy Docs](https://github.com/valentynblaha/gs1-parser/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/valentynblaha/gs1-parser/actions/workflows/deploy-docs.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
 
 A modern TypeScript library for parsing GS1 barcodes, supporting both ESModule and CommonJS formats.
 
-### Based on work from: https://github.com/PeterBrockfeld/BarcodeParser
+#### Based on work from: https://github.com/PeterBrockfeld/BarcodeParser
 
 ## Table of Contents
 
@@ -181,21 +184,8 @@ The `decode()` method does not perform plausibility checks (as of now). If the b
 
 ## API Reference
 
-### `decode(barcode: string): BarcodeResult`
-
-Parses a GS1 barcode string and returns structured data.
-
-**Returns:** `BarcodeResult` object containing:
-- `codeName`: `string` - Barcode type identifier (e.g., "GS1-128", "GS1-DataMatrix")
-- `data`: `Partial<Record<GS1Field, ParsedElement>>` - Dictionary of parsed data elements
-- `denormalized`: `string` - The original barcode in human readable form, with parentheses surrounding each AI
-
-**ParsedCodeItem structure:**
-- `ai` (string): Application identifier
-- `data` (string | number | Date): The actual content
-- `dataTitle` (string): Description of the data element
-- `dataString` (string): The substring that is being parsed
-- `unit` (string | undefined): Unit of measurement, country code, or currency (ISO codes)
+Check out the documentation at:
+#### [valentynblaha.github.io/gs1-parser](https://valentynblaha.github.io/gs1-parser)
 
 ## About Barcode Scanning Devices
 
