@@ -1,23 +1,23 @@
 export type ElementType = "S" | "N" | "D";
 export type GS1DecodedData = string | number | Date;
 
-export interface ParsedElement {
+export interface ParsedElement<T> {
   ai: string;
   dataTitle: string;
-  data: GS1DecodedData;
+  data: T;
   dataString: string;
   unit: string;
 }
 
-export interface ParseResult {
-  element: ParsedElement;
+export interface ParseResult<T> {
+  element: ParsedElement<T>;
   codestring: string;
 }
 
 export interface BarcodeAnswer {
   codeName: string;
   denormalized: string;
-  parsedCodeItems: ParsedElement[];
+  parsedCodeItems: ParsedElement<GS1DecodedData>[];
 }
 
 /**

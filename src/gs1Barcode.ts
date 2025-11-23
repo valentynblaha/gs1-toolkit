@@ -1,6 +1,6 @@
 import { AIMap, GS1Field } from "./aiNames";
 import { decode } from "./barcodeParser";
-import type { BarcodeAnswer, ParsedElement, ParserOptions } from "./types";
+import type { BarcodeAnswer, GS1DecodedData, ParsedElement, ParserOptions } from "./types";
 import { DecodeResult, GROUP_SEPARATOR } from "./utils";
 
 class GS1Parser {
@@ -31,7 +31,7 @@ class GS1Parser {
     }
 
     const parsed: BarcodeAnswer = decode(normalized, this.fncChar, this.lotLen);
-    const filteredItems: Partial<Record<GS1Field, ParsedElement>> = {};
+    const filteredItems: Partial<Record<GS1Field, ParsedElement<GS1DecodedData>>> = {};
     for (const item of parsed.parsedCodeItems) {
       const prop = AIMap["ai" + item.ai];
       if (prop) {

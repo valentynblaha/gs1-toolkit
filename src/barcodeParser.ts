@@ -14,7 +14,7 @@ import {
   parseVariableLengthWithISOChars,
   parseVariableLengthWithISONumbers,
 } from "./parsers";
-import type { BarcodeAnswer, ParseResult } from "./types";
+import type { BarcodeAnswer, GS1DecodedData, ParseResult } from "./types";
 import {
   BarcodeError,
   BarcodeErrorCodes,
@@ -38,7 +38,7 @@ import {
  *                   ParsedElement is returned, together with the
  *                   still unparsed rest of codestring.
  */
-function identifyAI(codestring: string, lotLen?: number, fncChar?: string): ParseResult {
+function identifyAI(codestring: string, lotLen?: number, fncChar?: string): ParseResult<GS1DecodedData> {
   if (!fncChar) {
     fncChar = GROUP_SEPARATOR;
   }
@@ -805,7 +805,7 @@ function parseBarcode(barcode: string, fncChar: string, lotLen?: number): Barcod
   let restOfBarcode = ""; // the rest of the barcode, when first
   // elements are spliced away
   const symbologyIdentifier = barcode.slice(0, 3);
-  let currentElement: ParseResult;
+  let currentElement: ParseResult<GS1DecodedData>;
 
   /**
    *

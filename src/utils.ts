@@ -57,10 +57,10 @@ export class BarcodeError extends Error {
   des: string;
 }
 
-export class ParsedElementClass implements ParsedElement {
+export class ParsedElementClass<T> implements ParsedElement<T> {
   ai: string;
   dataTitle: string;
-  data: GS1DecodedData;
+  data: T;
   dataString: string;
   unit: string;
 
@@ -84,17 +84,17 @@ export class ParsedElementClass implements ParsedElement {
 
     switch (elementType) {
       case "S":
-        this.data = "";
+        this.data = "" as T;
         break;
       case "N":
-        this.data = 0;
+        this.data = 0 as T;
         break;
       case "D":
-        this.data = new Date();
-        this.data.setHours(0, 0, 0, 0);
+        this.data = new Date() as T;
+        (this.data as Date).setHours(0, 0, 0, 0);
         break;
       default:
-        this.data = "";
+        this.data = "" as T;
         break;
     }
   }
@@ -116,7 +116,7 @@ export class DecodeResult {
     /**
      * The actual parsed data, presented in a dictionary
      */
-    public data: Partial<Record<GS1Field, ParsedElement>> = {}
+    public data: Partial<Record<GS1Field, ParsedElement<GS1DecodedData>>> = {}
   ) {}
 }
 

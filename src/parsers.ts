@@ -34,8 +34,8 @@ export function parseFloatingPoint(stringToParse: string, numberOfFractionals: n
  * @param {String} title the title to use for the ParsedElement
  * @param {String} codestring the codestring to parse the date from
  */
-export function parseDate(ai: string, title: string, codestring: string): ParseResult {
-  const elementToReturn = new ParsedElementClass(ai, title, "D");
+export function parseDate(ai: string, title: string, codestring: string): ParseResult<Date> {
+  const elementToReturn = new ParsedElementClass<Date>(ai, title, "D");
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
   let yearAsNumber = 0;
@@ -81,7 +81,7 @@ export function parseDate(ai: string, title: string, codestring: string): ParseR
     monthAsNumber++;
   }
 
-  (elementToReturn.data as Date).setFullYear(yearAsNumber, monthAsNumber, dayAsNumber);
+  elementToReturn.data.setFullYear(yearAsNumber, monthAsNumber, dayAsNumber);
   elementToReturn.dataString = dateYYMMDD;
 
   return { element: elementToReturn, codestring: codestring.slice(offSet + 6, codestring.length) };
@@ -101,8 +101,8 @@ export function parseFixedLength(
   length: number,
   codestring: string,
   numeric: boolean = false
-): ParseResult {
-  const elementToReturn = new ParsedElementClass(ai, title, "S");
+): ParseResult<string> {
+  const elementToReturn = new ParsedElementClass<string>(ai, title, "S");
   const offSet = ai.length;
   const data = codestring.slice(offSet, length + offSet);
 
@@ -146,8 +146,8 @@ export function parseVariableLength(
   fncChar: string,
   maxLength?: number,
   numeric: boolean = false
-): ParseResult {
-  const elementToReturn = new ParsedElementClass(ai, title, "S");
+): ParseResult<string> {
+  const elementToReturn = new ParsedElementClass<string>(ai, title, "S");
   const offSet = ai.length;
   const posOfFNC = codestring.indexOf(fncChar);
   let codestringToReturn = "";
@@ -203,10 +203,10 @@ export function parseVariableLengthMeasure(
   unit: string,
   codestring: string,
   fncChar: string
-): ParseResult {
+): ParseResult<number> {
   // the place of the decimal fraction is given by the fourth number, that's
   // the first after the identifier itself.
-  const elementToReturn = new ParsedElementClass(ai_stem + fourthNumber, title, "N");
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
   const offSet = ai_stem.length + 1;
   const posOfFNC = codestring.indexOf(fncChar);
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
@@ -244,8 +244,8 @@ export function parseFixedLengthMeasure(
   title: string,
   unit: string,
   codestring: string
-): ParseResult {
-  const elementToReturn = new ParsedElementClass(ai_stem + fourthNumber, title, "N");
+): ParseResult<number> {
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
   const offSet = ai_stem.length + 1;
 
   if (!NUMERIC_REGEX.test(fourthNumber)) {
@@ -290,10 +290,10 @@ export function parseVariableLengthWithISONumbers(
   title: string,
   codestring: string,
   fncChar: string
-): ParseResult {
+): ParseResult<number> {
   // an element of variable length, representing a number, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass(ai_stem + fourthNumber, title, "N");
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
   const offSet = ai_stem.length + 1;
   const posOfFNC = codestring.indexOf(fncChar);
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
@@ -331,10 +331,10 @@ export function parseVariableLengthWithISOChars(
   title: string,
   codestring: string,
   fncChar: string
-): ParseResult {
+): ParseResult<string> {
   // an element of variable length, representing a sequence of chars, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass(ai_stem, title, "S");
+  const elementToReturn = new ParsedElementClass<string>(ai_stem, title, "S");
   const offSet = ai_stem.length;
   const posOfFNC = codestring.indexOf(fncChar);
   let isoPlusNumbers = "";
