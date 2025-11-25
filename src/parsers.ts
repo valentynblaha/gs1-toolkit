@@ -3,6 +3,7 @@ import {
   BarcodeError,
   BarcodeErrorCodes,
   checkValidDate,
+  ElementType,
   InternalError,
   InvalidAiError,
   NUMERIC_REGEX,
@@ -35,7 +36,7 @@ export function parseFloatingPoint(stringToParse: string, numberOfFractionals: n
  * @param {String} codestring the codestring to parse the date from
  */
 export function parseDate(ai: string, title: string, codestring: string): ParseResult<Date> {
-  const elementToReturn = new ParsedElementClass<Date>(ai, title, "D");
+  const elementToReturn = new ParsedElementClass<Date>(ai, title, ElementType.D);
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
   let yearAsNumber = 0;
@@ -102,7 +103,7 @@ export function parseFixedLength(
   codestring: string,
   numeric: boolean = false
 ): ParseResult<string> {
-  const elementToReturn = new ParsedElementClass<string>(ai, title, "S");
+  const elementToReturn = new ParsedElementClass<string>(ai, title, ElementType.S);
   const offSet = ai.length;
   const data = codestring.slice(offSet, length + offSet);
 
@@ -147,7 +148,7 @@ export function parseVariableLength(
   maxLength?: number,
   numeric: boolean = false
 ): ParseResult<string> {
-  const elementToReturn = new ParsedElementClass<string>(ai, title, "S");
+  const elementToReturn = new ParsedElementClass<string>(ai, title, ElementType.S);
   const offSet = ai.length;
   const posOfFNC = codestring.indexOf(fncChar);
   let codestringToReturn = "";
@@ -206,7 +207,7 @@ export function parseVariableLengthMeasure(
 ): ParseResult<number> {
   // the place of the decimal fraction is given by the fourth number, that's
   // the first after the identifier itself.
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
   const offSet = ai_stem.length + 1;
   const posOfFNC = codestring.indexOf(fncChar);
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
@@ -245,7 +246,7 @@ export function parseFixedLengthMeasure(
   unit: string,
   codestring: string
 ): ParseResult<number> {
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
   const offSet = ai_stem.length + 1;
 
   if (!NUMERIC_REGEX.test(fourthNumber)) {
@@ -293,7 +294,7 @@ export function parseVariableLengthWithISONumbers(
 ): ParseResult<number> {
   // an element of variable length, representing a number, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, "N");
+  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
   const offSet = ai_stem.length + 1;
   const posOfFNC = codestring.indexOf(fncChar);
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
@@ -334,7 +335,7 @@ export function parseVariableLengthWithISOChars(
 ): ParseResult<string> {
   // an element of variable length, representing a sequence of chars, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass<string>(ai_stem, title, "S");
+  const elementToReturn = new ParsedElementClass<string>(ai_stem, title, ElementType.S);
   const offSet = ai_stem.length;
   const posOfFNC = codestring.indexOf(fncChar);
   let isoPlusNumbers = "";

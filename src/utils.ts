@@ -1,9 +1,16 @@
 import type { GS1Field } from "./aiNames";
-import type { ElementType, GS1DecodedData, ParsedElement } from "./types";
+import type { GS1DecodedData, ParsedElement } from "./types";
 
 export const GROUP_SEPARATOR = String.fromCodePoint(29);
 
 export const NUMERIC_REGEX = /^\d+$/;
+
+export enum ElementType {
+  S = "string",
+  N = "number",
+  D = "date",
+  UNDEFINED = "",
+}
 
 export enum BarcodeErrorCodes {
   BarcodeNotANum = 1,
@@ -63,6 +70,7 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
   data: T;
   dataString: string;
   unit: string;
+  readonly type: ElementType = ElementType.UNDEFINED;
 
   /**
    * "ParsedElement" is the
@@ -83,15 +91,18 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
     this.dataString = "";
 
     switch (elementType) {
-      case "S":
+      case ElementType.S:
         this.data = "" as T;
+        this.type = ElementType.S;
         break;
-      case "N":
+      case ElementType.N:
         this.data = 0 as T;
+        this.type = ElementType.N;
         break;
-      case "D":
+      case ElementType.D:
         this.data = new Date() as T;
         (this.data as Date).setHours(0, 0, 0, 0);
+        this.type = ElementType.D;
         break;
       default:
         this.data = "" as T;

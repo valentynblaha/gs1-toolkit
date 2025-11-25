@@ -1,4 +1,5 @@
-export type ElementType = "S" | "N" | "D";
+import type { ElementType } from "./utils";
+
 export type GS1DecodedData = string | number | Date;
 
 export interface ParsedElement<T> {
@@ -7,6 +8,7 @@ export interface ParsedElement<T> {
   data: T;
   dataString: string;
   unit: string;
+  type: ElementType
 }
 
 export interface ParseResult<T> {
