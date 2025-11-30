@@ -39,6 +39,23 @@ export function parseDate(ai: string, title: string, codestring: string): ParseR
   const elementToReturn = new ParsedElementClass<Date>(ai, title, ElementType.D);
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
+
+  if (dateYYMMDD.length !== 6) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.FixedLengthDataTooShort,
+      "37",
+      `Data length ${dateYYMMDD.length} is less than expected length ${length} for AI "${ai}".`
+    );
+  }
+
+  if (!NUMERIC_REGEX.test(dateYYMMDD)) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.NumericDataExpected,
+      "39",
+      `Numeric data expected for AI "${ai}", but got "${dateYYMMDD}".`
+    );
+  }
+
   let yearAsNumber = 0;
   let monthAsNumber = 0;
   let dayAsNumber = 0;
@@ -64,10 +81,15 @@ export function parseDate(ai: string, title: string, codestring: string): ParseR
   // we are in the 21st century, but section 7.12 of the specification
   // states that years 51-99 should be considered to belong to the
   // 20th century:
-  if (yearAsNumber > 50) {
-    yearAsNumber = yearAsNumber + 1900;
+  const currentCentury = Math.floor(new Date().getFullYear() / 100);
+  const currentYear = new Date().getFullYear() % 100;
+  const diff = yearAsNumber - currentYear;
+  if (diff >= 51 && diff <= 99) {
+    yearAsNumber = (currentCentury - 1) * 100 + yearAsNumber;
+  } else if (diff >= -99 && diff <= -50) {
+    yearAsNumber = (currentCentury + 1) * 100 + yearAsNumber;
   } else {
-    yearAsNumber = yearAsNumber + 2000;
+    yearAsNumber = currentCentury * 100 + yearAsNumber;
   }
 
   if (!checkValidDate(yearAsNumber, monthAsNumber, dayAsNumber)) {

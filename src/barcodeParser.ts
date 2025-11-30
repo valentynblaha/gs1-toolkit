@@ -110,7 +110,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
       switch (secondNumber) {
         case "0":
           // Variant Number
-          return parseFixedLength("20", "VARIANT", 2, codestring);
+          return parseFixedLength("20", "VARIANT", 2, codestring, true);
         case "1":
           // Serial Number
           return parseVariableLength("21", "SERIAL", codestring, fncChar, lotLen ?? 20);
@@ -580,17 +580,24 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
               }
             case "3":
               // Approval Number of Processor with ISO Country Code
-
               // Title and stem for parsing are build from 4th number:
-
               return parseVariableLengthWithISOChars(
                 "703" + fourthNumber,
                 "PROCESSOR # " + fourthNumber,
                 codestring,
                 fncChar
               );
-
-            // TODO: AIs 7040 and 7041
+            case "4":
+              switch (fourthNumber) {
+                case "0":
+                  // GS1 UIC with Extension 1 and Importer index
+                  return parseFixedLength("7040", "UIC+EXT", 4, codestring);
+                case "1":
+                  // UN/CEFACT freight unit type
+                  return parseVariableLength("7041", "UFRGT UNIT TYPE", codestring, fncChar, 4);
+                default:
+                  throw new InvalidAiError("704", fourthNumber);
+              }
             default:
               throw new InvalidAiError("70", thirdNumber);
           }
