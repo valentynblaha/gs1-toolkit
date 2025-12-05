@@ -1,12 +1,13 @@
 {
   "name": "@valentynb/gs1-parser",
   "version": "1.3.0",
-  "description": "A typescript gs1-barcode parser. Based on code from https://github.com/PeterBrockfeld/BarcodeParser",
+  "description": "A TypeScript GS1 barcode parser for logistics and supply chain applications.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs --clean --minify --keep-names",
+    "build:iife": "tsup src/index.ts --format iife --global-name GS1Parser --minify",
     "dev": "vite",
     "docs": "typedoc",
     "test": "vitest"
