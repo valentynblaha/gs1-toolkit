@@ -99,9 +99,8 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
         this.data = 0 as T;
         this.type = ElementType.N;
         break;
-      case ElementType.D:
+      case ElementType.D: 
         this.data = new Date() as T;
-        (this.data as Date).setHours(0, 0, 0, 0);
         this.type = ElementType.D;
         break;
       default:

@@ -34,7 +34,7 @@ describe("GS1 Date Parsing - Edge Cases", () => {
   for (const [value] of validDates) {
     for (const ai of DATE_AIS) {
       it(`should parse valid GS1 date AI ${ai}: "${value}"`, () => {
-        expect(() => parseDate(ai, "", ai + value)).not.toThrow();
+        expect(() => parseDate(ai, "", ai + value, false)).not.toThrow();
       });
     }
   }
@@ -62,7 +62,7 @@ describe("GS1 Date Parsing - Edge Cases", () => {
   for (const value of invalidDates) {
     for (const ai of DATE_AIS) {
       it(`should throw on invalid GS1 date AI ${ai}: "${value}"`, () => {
-        expect(() => parseDate(ai, "", ai + value)).toThrow();
+        expect(() => parseDate(ai, "", ai + value, false)).toThrow();
       });
     }
   }
@@ -72,23 +72,23 @@ describe("GS1 Date Parsing - Edge Cases", () => {
   //
   describe("Ambiguous/Boundary Cases", () => {
     it("should follow the GS1 rule (section 7.12) for the century", () => {
-      expect(parseDate("17", "", "17000101").element.data.getFullYear()).toBe(2000);
-      expect(parseDate("17", "", "17490101").element.data.getFullYear()).toBe(2049);
-      expect(parseDate("17", "", "17500101").element.data.getFullYear()).toBe(2050);
-      expect(parseDate("17", "", "17990101").element.data.getFullYear()).toBe(1999);
+      expect(parseDate("17", "", "17000101", false).element.data.getFullYear()).toBe(2000);
+      expect(parseDate("17", "", "17490101", false).element.data.getFullYear()).toBe(2049);
+      expect(parseDate("17", "", "17500101", false).element.data.getFullYear()).toBe(2050);
+      expect(parseDate("17", "", "17990101", false).element.data.getFullYear()).toBe(1999);
     });
 
     it("should throw if value is partially missing (e.g., '23031')", () => {
-      expect(() => parseDate("11", "", "1123031")).toThrow();
+      expect(() => parseDate("11", "", "1123031", false)).toThrow();
     });
 
     it("should throw for February 30 or 31", () => {
-      expect(() => parseDate("17", "", "17230230")).toThrow();
-      expect(() => parseDate("17", "", "17230231")).toThrow();
+      expect(() => parseDate("17", "", "17230230", false)).toThrow();
+      expect(() => parseDate("17", "", "17230231", false)).toThrow();
     });
 
     it("should throw for April 31", () => {
-      expect(() => parseDate("15", "", "15230431")).toThrow();
+      expect(() => parseDate("15", "", "15230431", false)).toThrow();
     });
   });
 });

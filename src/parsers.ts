@@ -34,11 +34,18 @@ export function parseFloatingPoint(stringToParse: string, numberOfFractionals: n
  * @param {String} ai    the AI to use for the ParsedElement
  * @param {String} title the title to use for the ParsedElement
  * @param {String} codestring the codestring to parse the date from
+ * @param {Boolean} utc  whether to parse the date as UTC or local time
  */
-export function parseDate(ai: string, title: string, codestring: string): ParseResult<Date> {
+export function parseDate(ai: string, title: string, codestring: string, utc: boolean): ParseResult<Date> {
   const elementToReturn = new ParsedElementClass<Date>(ai, title, ElementType.D);
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
+  
+  if (utc) {
+    elementToReturn.data.setUTCHours(0, 0, 0, 0);
+  } else {
+    elementToReturn.data.setHours(0, 0, 0, 0);
+  }
 
   if (dateYYMMDD.length !== 6) {
     throw new BarcodeError(

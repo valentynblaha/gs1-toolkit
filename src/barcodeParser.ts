@@ -14,7 +14,7 @@ import {
   parseVariableLengthWithISOChars,
   parseVariableLengthWithISONumbers,
 } from "./parsers";
-import type { BarcodeAnswer, GS1DecodedData, ParseResult } from "./types";
+import type { BarcodeAnswer, GS1DecodedData, ParseResult, ParserOptions } from "./types";
 import {
   BarcodeError,
   BarcodeErrorCodes,
@@ -32,16 +32,21 @@ import {
  *       which parameters to parse the element?
  * @param   {String} codestring a string; the function tries to
  *                   identify an AI in the beginning of this string
- * @param   {Number} lotLen optional lot length parameter
- * @param   {String} fncChar optional function character parameter
+ * @param   {ParserOptions} parserOptions the parser options including the FNC1 character used as field separator
  * @returns {ParseResult} if it succeeds in identifying an AI the
  *                   ParsedElement is returned, together with the
  *                   still unparsed rest of codestring.
  */
-function identifyAI(codestring: string, lotLen?: number, fncChar?: string): ParseResult<GS1DecodedData> {
-  if (!fncChar) {
-    fncChar = GROUP_SEPARATOR;
+function identifyAI(codestring: string, parserOptions: ParserOptions): ParseResult<GS1DecodedData> {
+  if (!parserOptions.fncChar) {
+    parserOptions.fncChar = GROUP_SEPARATOR;
   }
+  if (!parserOptions.utcTimestamps) {
+    parserOptions.utcTimestamps = false;
+  }
+
+  const fncChar = parserOptions.fncChar;
+  const lotLen = parserOptions.lotMaxLength;
 
   // find first identifier. AIs have a minimum length of 2
   // digits, some have 3, some even 4.
@@ -86,23 +91,23 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
           return parseVariableLength("10", "BATCH/LOT", codestring, fncChar, lotLen ?? 20);
         case "1":
           // Production Date (YYMMDD)
-          return parseDate("11", "PROD DATE", codestring);
+          return parseDate("11", "PROD DATE", codestring, parserOptions.utcTimestamps);
         case "2":
           // Due Date (YYMMDD)
-          return parseDate("12", "DUE DATE", codestring);
+          return parseDate("12", "DUE DATE", codestring, parserOptions.utcTimestamps);
         case "3":
           // Packaging Date (YYMMDD)
-          return parseDate("13", "PACK DATE", codestring);
+          return parseDate("13", "PACK DATE", codestring, parserOptions.utcTimestamps);
         // AI "14" isn't defined
         case "5":
           // Best Before Date (YYMMDD)
-          return parseDate("15", "BEST BEFORE or BEST BY", codestring);
+          return parseDate("15", "BEST BEFORE or BEST BY", codestring, parserOptions.utcTimestamps);
         case "6":
           // Sell By Date (YYMMDD)
-          return parseDate("16", "SELL BY", codestring);
+          return parseDate("16", "SELL BY", codestring, parserOptions.utcTimestamps);
         case "7":
           // Expiration Date (YYMMDD)
-          return parseDate("17", "USE BY OR EXPIRY", codestring);
+          return parseDate("17", "USE BY OR EXPIRY", codestring, parserOptions.utcTimestamps);
         default:
           throw new InvalidAiError("1", secondNumber);
       }
@@ -535,7 +540,7 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
                   return parseVariableLength("7005", "CATCH AREA", codestring, fncChar, 12);
                 case "6":
                   // First freeze date
-                  return parseDate("7006", "FIRST FREEZE DATE", codestring);
+                  return parseDate("7006", "FIRST FREEZE DATE", codestring, parserOptions.utcTimestamps);
                 case "7":
                   // Harvest date
                   // FIXME: actually a double date (start date - end date)
@@ -798,11 +803,10 @@ function identifyAI(codestring: string, lotLen?: number, fncChar?: string): Pars
  * GS1 - element. If it succeeds, the result is returned as an object composed of
  * an identifier and an array.It accepts
  * @param   {String}   barcode is the contents of the barcode you'd like to get parsed
- * @param   {String}   fncChar is the FNC1 character used in the barcode
- * @param   {String}   lotLen optional lot length parameter
+ * @param   {Object}   parserOptions options for the parser
  * @returns {Array}    an array with elements which are objects of type "ParsedElement"
  */
-function parseBarcode(barcode: string, fncChar: string, lotLen?: number): BarcodeAnswer {
+function parseBarcode(barcode: string, parserOptions: ParserOptions): BarcodeAnswer {
   if (!barcode || typeof barcode !== "string") {
     throw new BarcodeError(BarcodeErrorCodes.EmptyBarcode, "31", "The barcode is empty or not a string.");
   }
@@ -888,8 +892,8 @@ function parseBarcode(barcode: string, fncChar: string, lotLen?: number): Barcod
 
   while (restOfBarcode.length > 0) {
     try {
-      currentElement = identifyAI(restOfBarcode, lotLen);
-      restOfBarcode = cleanCodestring(currentElement.codestring, fncChar);
+      currentElement = identifyAI(restOfBarcode, parserOptions);
+      restOfBarcode = cleanCodestring(currentElement.codestring, parserOptions.fncChar!);
       answer.parsedCodeItems.push(currentElement.element);
       answer.denormalized += "(" + currentElement.element.ai + ")" + currentElement.element.dataString;
     } catch (e) {

@@ -37,4 +37,9 @@ export interface ParserOptions {
    * If not specified, no limit is applied, except the one in the GS1 specs
    */
   lotMaxLength?: number;
+
+  /**
+   * If true, date fields are returned as UTC timestamps instead of local dates
+   */
+  utcTimestamps?: boolean;
 }
