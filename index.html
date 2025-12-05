@@ -3,34 +3,372 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GS1 - Test Page</title>
-  </head>
-  <body style="font-size: 20pt; margin: 0; padding: 20px; ">
-    <form style="display: flex; flex-direction: column; gap: 10px;">
-      <label for="gs1-input">Enter GS1 Code:</label>
-      <input type="text" id="gs1-input" name="gs1-input" style="font-size: 13pt; padding: 10px; width: 100%; box-sizing: border-box;" />
-      <button type="submit" style="font-size: 20pt;">Submit</button>
-    </form>
-    <div id="output" style="margin-top: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></div>
-  </body>
-  <script type="module">
-    import { GS1Parser } from "./src/index.ts";
-
-    const parser = new GS1Parser({
-      lotMaxLength: 20,
-    });
-
-    document.querySelector("form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const gs1Input = document.getElementById("gs1-input").value;
-      try {
-        const decodedData = parser.decode(gs1Input);
-        document.getElementById("output").textContent = decodedData.denormalized;
-        console.log("Decoded GS1 Data:", decodedData);
-      } catch (error) {
-        document.getElementById("output").textContent = "Error: " + error.message;
-        console.error("Error decoding GS1 code:", error);
+    <title>GS1 Code Parser</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    });
-  </script>
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+          sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        color: #1e40af;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        color: #6b7280;
+        margin-bottom: 32px;
+        font-size: 0.95rem;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #374151;
+        font-size: 0.95rem;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 14px 16px;
+        font-size: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-family: "Consolas", "Courier New", monospace;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #1e40af;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+      }
+
+      .btn {
+        padding: 14px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .btn-secondary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: #1e40af;
+        color: white;
+        width: 100%;
+        font-size: 1.1rem;
+      }
+
+      .btn-primary:hover {
+        background: #1e3a8a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .output-section {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 16px;
+        min-height: 60px;
+      }
+
+      .output-label {
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+      }
+
+      .output-content {
+        font-family: "Consolas", "Courier New", monospace;
+        color: #1f2937;
+        word-break: break-all;
+        line-height: 1.6;
+      }
+
+      .error {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #961919;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      thead {
+        background: #1e40af;
+        color: white;
+      }
+
+      th {
+        padding: 14px 12px;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        margin-top: 16px;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: #9ca3af;
+        padding: 40px 20px;
+        font-style: italic;
+      }
+
+      @media (max-width: 640px) {
+        .card {
+          padding: 24px 20px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .input-wrapper {
+          flex-direction: column;
+        }
+
+        table {
+          font-size: 0.85rem;
+        }
+
+        th,
+        td {
+          padding: 10px 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>GS1 Code Parser</h1>
+        <p class="subtitle">Parse and decode GS1 barcode data with ease</p>
+
+        <form id="gs1-form">
+          <div class="form-group">
+            <label for="gs1-input">Enter GS1 Code</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="gs1-input"
+                name="gs1-input"
+                placeholder="Paste or type your GS1 code here..."
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                id="insert-gs-button"
+                class="btn btn-secondary"
+                title="Insert GS character (ASCII 29)"
+              >
+                Insert GS
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Parse Code</button>
+        </form>
+
+        <div id="output-container" style="display: none">
+          <div class="output-section" id="output-section">
+            <div class="output-label">Denormalized Output</div>
+            <div class="output-content" id="output"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="table-card" style="display: none">
+        <h2 style="font-size: 1.5rem; margin-bottom: 16px; color: #374151">Parsed Data</h2>
+        <div class="table-wrapper">
+          <table id="data-table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>AI</th>
+                <th>Title</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr>
+                <td colspan="4" class="empty-state">No data parsed yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { GS1Parser } from "./src/index.ts";
+
+      const parser = new GS1Parser({
+        lotMaxLength: 20,
+      });
+
+      const form = document.getElementById("gs1-form");
+      const inputField = document.getElementById("gs1-input");
+      const insertGsButton = document.getElementById("insert-gs-button");
+      const outputContainer = document.getElementById("output-container");
+      const outputSection = document.getElementById("output-section");
+      const outputDiv = document.getElementById("output");
+      const tableCard = document.getElementById("table-card");
+      const tableBody = document.getElementById("table-body");
+
+      // Insert GS character
+      insertGsButton.addEventListener("click", function () {
+        const gsChar = String.fromCodePoint(29);
+        const cursorPos = inputField.selectionStart || 0;
+        const textBefore = inputField.value.substring(0, cursorPos);
+        const textAfter = inputField.value.substring(cursorPos);
+        inputField.value = textBefore + gsChar + textAfter;
+        inputField.focus();
+        inputField.selectionStart = cursorPos + 1;
+        inputField.selectionEnd = cursorPos + 1;
+      });
+
+      // Form submission
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const gs1Input = inputField.value.trim();
+
+        if (!gs1Input) {
+          showError("Please enter a GS1 code");
+          return;
+        }
+
+        try {
+          const decodedData = parser.decode(gs1Input);
+
+          // Show denormalized output
+          outputContainer.style.display = "block";
+          outputSection.classList.remove("error");
+          outputDiv.textContent = decodedData.denormalized;
+
+          // Build table
+          if (decodedData.data && Object.keys(decodedData.data).length > 0) {
+            const tableRows = Object.entries(decodedData.data)
+              .map(
+                ([key, value]) => `
+                <tr>
+                  <td><strong>${escapeHtml(key)}</strong></td>
+                  <td>${escapeHtml(value.ai)}</td>
+                  <td>${escapeHtml(value.dataTitle)}</td>
+                  <td>${escapeHtml(value.data.toString())}</td>
+                </tr>
+              `
+              )
+              .join("");
+
+            tableBody.innerHTML = tableRows;
+            tableCard.style.display = "block";
+          } else {
+            tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">No data fields found</td></tr>';
+            tableCard.style.display = "block";
+          }
+
+          console.log("Decoded GS1 Data:", decodedData);
+        } catch (error) {
+          showError(error.message || "Failed to parse GS1 code");
+          console.error("Error decoding GS1 code:", error);
+        }
+      });
+
+      function showError(message) {
+        outputContainer.style.display = "block";
+        outputSection.classList.add("error");
+        outputDiv.textContent = `Error: ${message}`;
+        tableCard.style.display = "none";
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    </script>
+  </body>
 </html>
