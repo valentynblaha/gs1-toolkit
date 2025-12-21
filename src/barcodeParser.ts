@@ -9,6 +9,7 @@ import {
   parseDate,
   parseFixedLength,
   parseFixedLengthMeasure,
+  parseTemperature,
   parseVariableLength,
   parseVariableLengthMeasure,
   parseVariableLengthWithISOChars,
@@ -508,7 +509,133 @@ function identifyAI(codestring: string, parserOptions: ParserOptions): ParseResu
             default:
               throw new InvalidAiError("42", thirdNumber);
           }
-        // TODO: implement AIs 4300 to 4333 (Transport Related AIs)
+        case "3":
+          thirdNumber = codestring.slice(2, 3);
+          fourthNumber = codestring.slice(3, 4);
+          switch (thirdNumber) {
+            case "0":
+              switch (fourthNumber) {
+                case "0":
+                  // Ship-to / Deliver-to Company name
+                  return parseVariableLength("4300", "SHIP TO COMP", codestring, fncChar, 35);
+                case "1":
+                  // Ship-to / Deliver-to contact name
+                  return parseVariableLength("4301", "SHIP TO NAME", codestring, fncChar, 35);
+                case "2":
+                  // Ship-to / Deliver-to address line 1
+                  return parseVariableLength("4302", "SHIP TO ADD1", codestring, fncChar, 70);
+                case "3":
+                  // Ship-to / Deliver-to address line 2
+                  return parseVariableLength("4303", "SHIP TO ADD2", codestring, fncChar, 70);
+                case "4":
+                  // Ship-to / Deliver-to suburb
+                  return parseVariableLength("4304", "SHIP TO SUB", codestring, fncChar, 70);
+                case "5":
+                  // Ship-to / Deliver-to locality
+                  return parseVariableLength("4305", "SHIP TO LOC", codestring, fncChar, 70);
+                case "6":
+                  // Ship-to / Deliver-to region
+                  return parseVariableLength("4306", "SHIP TO REG", codestring, fncChar, 70);
+                case "7":
+                  // Ship-to / Deliver-to country code
+                  return parseVariableLength("4307", "SHIP TO COUNTRY", codestring, fncChar, 2);
+                case "8":
+                  // Ship-to / Deliver-to telephone number
+                  return parseVariableLength("4308", "SHIP TO PHONE", codestring, fncChar, 30);
+                case "9":
+                  // TODO: parse as a geolocation coordinate
+                  // Ship-to / Deliver-to GEO location
+                  return parseVariableLength("4309", "SHIP TO GEO", codestring, fncChar, 20);
+                default:
+                  throw new InvalidAiError("430", fourthNumber);
+              }
+            case "1":
+              switch (fourthNumber) {
+                case "0":
+                  // Return-to / Deliver-to Company name
+                  return parseVariableLength("4310", "RTN TO COMP", codestring, fncChar, 35);
+                case "1":
+                  // Return-to / Deliver-to contact name
+                  return parseVariableLength("4311", "RTN TO NAME", codestring, fncChar, 35);
+                case "2":
+                  // Return-to / Deliver-to address line 1
+                  return parseVariableLength("4312", "RTN TO ADD1", codestring, fncChar, 70);
+                case "3":
+                  // Return-to / Deliver-to address line 2
+                  return parseVariableLength("4313", "RTN TO ADD2", codestring, fncChar, 70);
+                case "4":
+                  // Return-to / Deliver-to suburb
+                  return parseVariableLength("4314", "RTN TO SUB", codestring, fncChar, 70);
+                case "5":
+                  // Return-to / Deliver-to locality
+                  return parseVariableLength("4315", "RTN TO LOC", codestring, fncChar, 70);
+                case "6":
+                  // Return-to / Deliver-to region
+                  return parseVariableLength("4316", "RTN TO REG", codestring, fncChar, 70);
+                case "7":
+                  // Return-to / Deliver-to country code
+                  return parseVariableLength("4317", "RTN TO COUNTRY", codestring, fncChar, 2);
+                case "8":
+                  // Return-to / Deliver-to postal code
+                  return parseVariableLength("4318", "RTN TO POST", codestring, fncChar, 20);
+                case "9":
+                  // Return-to / Deliver-to telephone number
+                  return parseVariableLength("4319", "RTN TO PHONE", codestring, fncChar, 30);
+                default:
+                  throw new InvalidAiError("431", fourthNumber);
+              }
+            case "2":
+              switch (fourthNumber) {
+                case "0":
+                  // Service code description
+                  return parseVariableLength("4320", "SRV DESCRIPTION", codestring, fncChar, 35);
+                case "1":
+                  // TODO: parse as a boolean
+                  // Dangerous goods flag
+                  return parseVariableLength("4321", "DANGEROUS GOODS", codestring, fncChar, 1);
+                case "2":
+                  // TODO: parse as a boolean
+                  // Authority to leave flag
+                  return parseVariableLength("4322", "AUTH LEAVE", codestring, fncChar, 1);
+                case "3":
+                  // TODO: parse as a boolean
+                  // Signature required flag
+                  return parseVariableLength("4323", "SIG REQUIRED", codestring, fncChar, 1);
+                case "4":
+                  // FIXME: actually a datetime (yyMMddHHmm)
+                  // Not before delivery date/time
+                  return parseVariableLength("4324", "NBEF DEL DT", codestring, fncChar, 10);
+                case "5":
+                  // FIXME: actually a datetime (yyMMddHHmm)
+                  // Not before delivery date/time
+                  return parseVariableLength("4325", "NAFT DEL DT", codestring, fncChar, 10);
+                case "6":
+                  // FIXME: actually a date
+                  // Release date
+                  return parseVariableLength("4326", "REL DATE", codestring, fncChar, 6);
+                default:
+                  throw new InvalidAiError("432", fourthNumber);
+              }
+            case "3":
+              switch (fourthNumber) {
+                case "0":
+                  // Maximum temperature in Fahrenheit
+                  return parseTemperature("4330", 2, "MAX TEMP F", "°F", codestring, fncChar);
+                case "1":
+                  // Maximum temperature in Celsius
+                  return parseTemperature("4331", 2, "MAX TEMP C", "°C", codestring, fncChar);
+                case "2":
+                  // Minimum temperature in Fahrenheit
+                  return parseTemperature("4332", 2, "MIN TEMP F", "°F", codestring, fncChar);
+                case "3":
+                  // Minimum temperature in Celsius
+                  return parseTemperature("4333", 2, "MIN TEMP C", "°C", codestring, fncChar);
+                default:
+                  throw new InvalidAiError("433", fourthNumber);
+              }
+            default:
+              throw new InvalidAiError("43", thirdNumber);
+          }
         default:
           throw new InvalidAiError("4", secondNumber);
       }

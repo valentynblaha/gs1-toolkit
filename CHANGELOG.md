@@ -2,6 +2,13 @@
 
 All changes to this project are documented in this file.
 
+## v1.4.0
+
+### Added
+
+- AIs from 4300 to 4333 (transport related AIs)
+- Flag for UTC or local Date parsing
+
 ## v1.3.0
 
 ### Added

@@ -17,9 +17,14 @@ import {
  * To avoid conversion errors binary <-> decimal I _don't_
  * just divide by 10 numberOfFractionals times.
  */
-export function parseFloatingPoint(stringToParse: string, numberOfFractionals: number): number {
+export function parseFloatingPoint(
+  stringToParse: string,
+  numberOfFractionals: number,
+  negative: boolean = false
+): number {
   const offset = stringToParse.length - numberOfFractionals;
-  const auxString = stringToParse.slice(0, offset) + "." + stringToParse.slice(offset);
+  const auxString =
+    (negative ? "-" : "") + stringToParse.slice(0, offset) + "." + stringToParse.slice(offset);
   try {
     return Number.parseFloat(auxString);
   } catch (error_) {
@@ -40,7 +45,7 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
   const elementToReturn = new ParsedElementClass<Date>(ai, title, ElementType.D);
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
-  
+
   if (utc) {
     elementToReturn.data.setUTCHours(0, 0, 0, 0);
   } else {
@@ -51,7 +56,7 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
     throw new BarcodeError(
       BarcodeErrorCodes.FixedLengthDataTooShort,
       "37",
-      `Data length ${dateYYMMDD.length} is less than expected length ${length} for AI "${ai}".`
+      `Data length ${dateYYMMDD.length} is less than expected length 6 for AI "${ai}".`
     );
   }
 
@@ -218,13 +223,12 @@ export function parseVariableLength(
 }
 
 /**
- * parses data elements of variable length, which additionally have
+ * Parses data elements of variable length, which additionally have
  *
  * - an indicator for the number of valid decimals
  * - an implicit unit of measurement
  *
  * These data elements contain e.g. a weight or length.
- *
  */
 export function parseVariableLengthMeasure(
   ai_stem: string,
@@ -258,7 +262,7 @@ export function parseVariableLengthMeasure(
 }
 
 /**
- * the place of the decimal fraction is given by the fourth number, that's
+ * The place of the decimal fraction is given by the fourth number, that's
  * the first after the identifier itself.
  *
  * All of theses elements have a length of 6 characters.
@@ -276,14 +280,14 @@ export function parseFixedLengthMeasure(
   codestring: string
 ): ParseResult<number> {
   const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
-  const offSet = ai_stem.length + 1;
+  const offset = ai_stem.length + 1;
 
   if (!NUMERIC_REGEX.test(fourthNumber)) {
     throw new InvalidAiError(ai_stem, fourthNumber);
   }
 
   const numberOfDecimals = Number.parseInt(fourthNumber, 10);
-  const numberPart = codestring.slice(offSet, offSet + 6);
+  const numberPart = codestring.slice(offset, offset + 6);
 
   if (!NUMERIC_REGEX.test(numberPart)) {
     throw new BarcodeError(
@@ -296,7 +300,67 @@ export function parseFixedLengthMeasure(
   elementToReturn.data = parseFloatingPoint(numberPart, numberOfDecimals);
   elementToReturn.dataString = numberPart;
   elementToReturn.unit = unit;
-  const codestringToReturn = codestring.slice(offSet + 6, codestring.length);
+  const codestringToReturn = codestring.slice(offset + 6, codestring.length);
+
+  return { element: elementToReturn, codestring: codestringToReturn };
+}
+
+/**
+ * The place of the decimal fraction is given by the AI definition
+ *
+ * All of theses elements have a length of 6 characters.
+ * @param {String} ai      the first digits of the AI, _not_ the fourth digit
+ * @param {Number} decimals the 4th number indicating the count of valid fractionals
+ * @param {String} title        the title of the AI
+ * @param {String} unit         often these elements have an implicit unit of measurement
+ * @param {String} codestring  the codestring to parse from
+ * @param {String} fncChar  the separator
+ */
+export function parseTemperature(
+  ai: string,
+  decimals: number,
+  title: string,
+  unit: string,
+  codestring: string,
+  fncChar: string
+): ParseResult<number> {
+  const elementToReturn = new ParsedElementClass<number>(ai, title, ElementType.N);
+  const offset = ai.length;
+
+  if (codestring.length < offset + 6) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.FixedLengthDataTooShort,
+      "40",
+      `Data length ${codestring.length - offset} is less than expected length 6 for AI "${ai}".`
+    );
+  }
+
+  let nextAi = codestring.indexOf(fncChar);
+  if (nextAi === -1) {
+    nextAi = offset + 7;
+  } else if (nextAi < offset + 6) {
+    // TODO: improve error
+    throw new BarcodeError(
+      BarcodeErrorCodes.FixedLengthDataTooShort,
+      "40",
+      `Data length ${nextAi - ai.length} is less than expected length 6 for AI "${ai}".`
+    );
+  }
+  const numberPart = codestring.slice(offset, offset + 6);
+
+  if (!NUMERIC_REGEX.test(numberPart)) {
+    throw new BarcodeError(
+      BarcodeErrorCodes.NumericDataExpected,
+      "39",
+      `Numeric data expected for AI "${ai}", but got "${numberPart}".`
+    );
+  }
+  const idNegative = ["-", "\u2013", "—"].includes(codestring.slice(offset + 6, offset + 7));
+
+  elementToReturn.data = parseFloatingPoint(numberPart, decimals, idNegative);
+  elementToReturn.dataString = numberPart;
+  elementToReturn.unit = unit;
+  const codestringToReturn = codestring.slice(nextAi, codestring.length);
 
   return { element: elementToReturn, codestring: codestringToReturn };
 }
