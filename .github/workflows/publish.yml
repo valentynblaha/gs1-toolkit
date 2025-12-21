@@ -1,8 +1,10 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [Create GitHub Release]
+    types:
+      - completed
 
 permissions:
   id-token: write
