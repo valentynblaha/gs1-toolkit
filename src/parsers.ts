@@ -1,9 +1,10 @@
-import type { ParseResult } from "./types";
+import type { ParseResult, ParserParams } from "./types";
 import {
   BarcodeError,
   BarcodeErrorCodes,
   checkValidDate,
   ElementType,
+  GROUP_SEPARATOR,
   InternalError,
   InvalidAiError,
   NUMERIC_REGEX,
@@ -20,7 +21,7 @@ import {
 export function parseFloatingPoint(
   stringToParse: string,
   numberOfFractionals: number,
-  negative: boolean = false
+  negative: boolean = false,
 ): number {
   const offset = stringToParse.length - numberOfFractionals;
   const auxString =
@@ -33,20 +34,21 @@ export function parseFloatingPoint(
 }
 
 /**
- * dates in GS1-elements have the format "YYMMDD".
+ * Dates in GS1-elements have the format "YYMMDD".
  * This function generates a new ParsedElement and tries to fill a
  * JS-date into the "data"-part.
- * @param {String} ai    the AI to use for the ParsedElement
- * @param {String} title the title to use for the ParsedElement
- * @param {String} codestring the codestring to parse the date from
- * @param {Boolean} utc  whether to parse the date as UTC or local time
+ * @param codestring The codestring to parse the date from
+ * @param ai The AI to use for the ParsedElement
+ * @param definition AI definition
+ * @param options Parser options
  */
-export function parseDate(ai: string, title: string, codestring: string, utc: boolean): ParseResult<Date> {
-  const elementToReturn = new ParsedElementClass<Date>(ai, title, ElementType.D);
+export function parseDate(params: ParserParams): ParseResult<Date> {
+  const { codestring, ai, definition, options } = params;
+  const elementToReturn = new ParsedElementClass<Date>(ai, definition.title, ElementType.D);
   const offSet = ai.length;
   const dateYYMMDD = codestring.slice(offSet, offSet + 6);
 
-  if (utc) {
+  if (options.utcTimestamps) {
     elementToReturn.data.setUTCHours(0, 0, 0, 0);
   } else {
     elementToReturn.data.setHours(0, 0, 0, 0);
@@ -56,7 +58,7 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
     throw new BarcodeError(
       BarcodeErrorCodes.FixedLengthDataTooShort,
       "37",
-      `Data length ${dateYYMMDD.length} is less than expected length 6 for AI "${ai}".`
+      `Data length ${dateYYMMDD.length} is less than expected length 6 for AI "${ai}".`,
     );
   }
 
@@ -64,7 +66,7 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
     throw new BarcodeError(
       BarcodeErrorCodes.NumericDataExpected,
       "39",
-      `Numeric data expected for AI "${ai}", but got "${dateYYMMDD}".`
+      `Numeric data expected for AI "${ai}", but got "${dateYYMMDD}".`,
     );
   }
 
@@ -108,7 +110,7 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
     throw new BarcodeError(
       BarcodeErrorCodes.InvalidDate,
       "36",
-      `Invalid date "${dateYYMMDD}" for AI "${ai}".`
+      `Invalid date "${dateYYMMDD}" for AI "${ai}".`,
     );
   }
 
@@ -123,39 +125,24 @@ export function parseDate(ai: string, title: string, codestring: string, utc: bo
 }
 
 /**
- * simple: the element has a fixed length AND is not followed by an FNC1.
- * @param {String} ai     the AI to use
- * @param {String} title  its title, i.e. its short description
- * @param {Number} length the fixed length
- * @param {String} codestring the codestring to parse from
- * @param {Boolean} numeric whether the data is numeric or alphanumeric (default: false)
+ * Simple: the element has a fixed length AND is not followed by an FNC1.
  */
-export function parseFixedLength(
-  ai: string,
-  title: string,
-  length: number,
-  codestring: string,
-  numeric: boolean = false
-): ParseResult<string> {
-  const elementToReturn = new ParsedElementClass<string>(ai, title, ElementType.S);
+export function parseFixedLength(params: ParserParams): ParseResult<string> {
+  const { codestring, ai, definition } = params;
+  const elementToReturn = new ParsedElementClass<string>(ai, definition.title, ElementType.S);
   const offSet = ai.length;
+  const length = definition.fixedLength ?? 0;
   const data = codestring.slice(offSet, length + offSet);
 
   if (data.length < length) {
     throw new BarcodeError(
       BarcodeErrorCodes.FixedLengthDataTooShort,
       "37",
-      `Data length ${data.length} is less than expected length ${length} for AI "${ai}".`
+      `Data length ${data.length} is less than expected length ${length} for AI "${ai}".`,
     );
   }
 
-  if (numeric && !NUMERIC_REGEX.test(data)) {
-    throw new BarcodeError(
-      BarcodeErrorCodes.NumericDataExpected,
-      "39",
-      `Numeric data expected for AI "${ai}", but got "${data}".`
-    );
-  }
+  // TODO: handle numeric case
 
   elementToReturn.data = data;
   elementToReturn.dataString = data;
@@ -167,35 +154,16 @@ export function parseFixedLength(
  * tries to parse an element of variable length
  * some fixed length AIs are terminated by FNC1, so this function
  * is used even for fixed length items
- * @param {String} ai    the AI to use
- * @param {String} title its title, i.e. its short description
- * @param {String} codestring the codestring to parse from
- * @param {String} fncChar the FNC-character to use as terminator
- * @param {Number} maxLength the maximum length of the variable length element
- * @param {Boolean} numeric whether the data is numeric or alphanumeric (default: false)
  */
-export function parseVariableLength(
-  ai: string,
-  title: string,
-  codestring: string,
-  fncChar: string,
-  maxLength?: number,
-  numeric: boolean = false
-): ParseResult<string> {
-  const elementToReturn = new ParsedElementClass<string>(ai, title, ElementType.S);
+export function parseVariableLength(params: ParserParams): ParseResult<string> {
+  const { codestring, ai, definition, options } = params;
+  const elementToReturn = new ParsedElementClass<string>(ai, definition.title, ElementType.S);
   const offSet = ai.length;
-  const posOfFNC = codestring.indexOf(fncChar);
+  const posOfFNC = codestring.indexOf(options.fncChar ?? GROUP_SEPARATOR);
   let codestringToReturn = "";
 
   if (posOfFNC === -1) {
-    //we've got the last element of the barcode
-    if (maxLength && maxLength > 0) {
-      //lot
-      elementToReturn.data = codestring.slice(offSet, maxLength + offSet);
-      codestringToReturn = codestring.replace(ai + elementToReturn.data, "");
-    } else {
-      elementToReturn.data = codestring.slice(offSet, codestring.length);
-    }
+    elementToReturn.data = codestring.slice(offSet, codestring.length);
   } else {
     elementToReturn.data = codestring.slice(offSet, posOfFNC);
     codestringToReturn = codestring.slice(posOfFNC + 1, codestring.length);
@@ -205,17 +173,18 @@ export function parseVariableLength(
     throw new BarcodeError(
       BarcodeErrorCodes.EmptyVariableLengthData,
       "38",
-      `Variable length data for AI "${ai}" is empty.`
+      `Variable length data for AI "${ai}" is empty.`,
     );
   }
 
-  if (numeric && !NUMERIC_REGEX.test(elementToReturn.data)) {
-    throw new BarcodeError(
-      BarcodeErrorCodes.NumericDataExpected,
-      "39",
-      `Numeric data expected for AI "${ai}", but got "${elementToReturn.data}".`
-    );
-  }
+  // TODO: handle numeric case
+  //   if (numeric && !NUMERIC_REGEX.test(elementToReturn.data)) {
+  //     throw new BarcodeError(
+  //       BarcodeErrorCodes.NumericDataExpected,
+  //       "39",
+  //       `Numeric data expected for AI "${ai}", but got "${elementToReturn.data}".`,
+  //     );
+  //   }
 
   elementToReturn.dataString = elementToReturn.data;
 
@@ -230,20 +199,21 @@ export function parseVariableLength(
  *
  * These data elements contain e.g. a weight or length.
  */
-export function parseVariableLengthMeasure(
-  ai_stem: string,
-  fourthNumber: string,
-  title: string,
-  unit: string,
-  codestring: string,
-  fncChar: string
-): ParseResult<number> {
+export function parseVariableLengthMeasure(params: ParserParams): ParseResult<number> {
+  const { codestring, ai, definition, options } = params;
   // the place of the decimal fraction is given by the fourth number, that's
   // the first after the identifier itself.
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
-  const offSet = ai_stem.length + 1;
-  const posOfFNC = codestring.indexOf(fncChar);
-  const numberOfDecimals = Number.parseInt(fourthNumber, 10);
+  const numberOfDecimals = Number.parseInt(codestring.substring(0, 1));
+  if (Number.isNaN(numberOfDecimals) || !(definition.dpp ?? []).includes(numberOfDecimals)) {
+    throw new InvalidAiError(ai, codestring.substring(0, 1));
+  }
+  const elementToReturn = new ParsedElementClass<number>(
+    ai + numberOfDecimals,
+    definition.title,
+    ElementType.N,
+  );
+  const offSet = ai.length + 1;
+  const posOfFNC = codestring.indexOf(options.fncChar ?? GROUP_SEPARATOR);
   let numberPart = "";
 
   let codestringToReturn = "";
@@ -254,10 +224,11 @@ export function parseVariableLengthMeasure(
     codestringToReturn = codestring.slice(posOfFNC + 1, codestring.length);
   }
   // adjust decimals according to fourthNumber:
+  // TODO: handle unit
 
   elementToReturn.data = parseFloatingPoint(numberPart, numberOfDecimals);
   elementToReturn.dataString = numberPart;
-  elementToReturn.unit = unit;
+  elementToReturn.unit = "";
   return { element: elementToReturn, codestring: codestringToReturn };
 }
 
@@ -266,20 +237,16 @@ export function parseVariableLengthMeasure(
  * the first after the identifier itself.
  *
  * All of theses elements have a length of 6 characters.
- * @param {String} ai_stem      the first digits of the AI, _not_ the fourth digit
- * @param {Number} fourthNumber the 4th number indicating the count of valid fractionals
- * @param {String} title        the title of the AI
- * @param {String} unit         often these elements have an implicit unit of measurement
- * @param {String} codestring  the codestring to parse from
  */
-export function parseFixedLengthMeasure(
-  ai_stem: string,
-  fourthNumber: string,
-  title: string,
-  unit: string,
-  codestring: string
-): ParseResult<number> {
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
+export function parseFixedLengthMeasure(params: ParserParams): ParseResult<number> {
+  const { codestring, ai, definition } = params;
+  const ai_stem = ai.substring(0, ai.length - 1);
+  const fourthNumber = ai.substring(ai.length - 1, ai.length);
+  const elementToReturn = new ParsedElementClass<number>(
+    ai_stem + fourthNumber,
+    definition.title,
+    ElementType.N,
+  );
   const offset = ai_stem.length + 1;
 
   if (!NUMERIC_REGEX.test(fourthNumber)) {
@@ -293,13 +260,13 @@ export function parseFixedLengthMeasure(
     throw new BarcodeError(
       BarcodeErrorCodes.NumericDataExpected,
       "39",
-      `Numeric data expected for AI "${ai_stem + fourthNumber}", but got "${numberPart}".`
+      `Numeric data expected for AI "${ai_stem + fourthNumber}", but got "${numberPart}".`,
     );
   }
 
   elementToReturn.data = parseFloatingPoint(numberPart, numberOfDecimals);
   elementToReturn.dataString = numberPart;
-  elementToReturn.unit = unit;
+  //elementToReturn.unit = unit;
   const codestringToReturn = codestring.slice(offset + 6, codestring.length);
 
   return { element: elementToReturn, codestring: codestringToReturn };
@@ -309,33 +276,21 @@ export function parseFixedLengthMeasure(
  * The place of the decimal fraction is given by the AI definition
  *
  * All of theses elements have a length of 6 characters.
- * @param {String} ai      the first digits of the AI, _not_ the fourth digit
- * @param {Number} decimals the 4th number indicating the count of valid fractionals
- * @param {String} title        the title of the AI
- * @param {String} unit         often these elements have an implicit unit of measurement
- * @param {String} codestring  the codestring to parse from
- * @param {String} fncChar  the separator
  */
-export function parseTemperature(
-  ai: string,
-  decimals: number,
-  title: string,
-  unit: string,
-  codestring: string,
-  fncChar: string
-): ParseResult<number> {
-  const elementToReturn = new ParsedElementClass<number>(ai, title, ElementType.N);
+export function parseTemperature(params: ParserParams): ParseResult<number> {
+  const { codestring, ai, definition, options } = params;
+  const elementToReturn = new ParsedElementClass<number>(ai, definition.title, ElementType.N);
   const offset = ai.length;
 
   if (codestring.length < offset + 6) {
     throw new BarcodeError(
       BarcodeErrorCodes.FixedLengthDataTooShort,
       "40",
-      `Data length ${codestring.length - offset} is less than expected length 6 for AI "${ai}".`
+      `Data length ${codestring.length - offset} is less than expected length 6 for AI "${ai}".`,
     );
   }
 
-  let nextAi = codestring.indexOf(fncChar);
+  let nextAi = codestring.indexOf(options.fncChar ?? GROUP_SEPARATOR);
   if (nextAi === -1) {
     nextAi = offset + 7;
   } else if (nextAi < offset + 6) {
@@ -343,7 +298,7 @@ export function parseTemperature(
     throw new BarcodeError(
       BarcodeErrorCodes.FixedLengthDataTooShort,
       "40",
-      `Data length ${nextAi - ai.length} is less than expected length 6 for AI "${ai}".`
+      `Data length ${nextAi - ai.length} is less than expected length 6 for AI "${ai}".`,
     );
   }
   const numberPart = codestring.slice(offset, offset + 6);
@@ -352,14 +307,14 @@ export function parseTemperature(
     throw new BarcodeError(
       BarcodeErrorCodes.NumericDataExpected,
       "39",
-      `Numeric data expected for AI "${ai}", but got "${numberPart}".`
+      `Numeric data expected for AI "${ai}", but got "${numberPart}".`,
     );
   }
-  const idNegative = ["-", "\u2013", "—"].includes(codestring.slice(offset + 6, offset + 7));
+  const isNegative = ["-", "\u2013", "—"].includes(codestring.slice(offset + 6, offset + 7));
 
-  elementToReturn.data = parseFloatingPoint(numberPart, decimals, idNegative);
+  elementToReturn.data = parseFloatingPoint(numberPart, 2, isNegative);
   elementToReturn.dataString = numberPart;
-  elementToReturn.unit = unit;
+  //elementToReturn.unit = unit;
   const codestringToReturn = codestring.slice(nextAi, codestring.length);
 
   return { element: elementToReturn, codestring: codestringToReturn };
@@ -378,19 +333,22 @@ export function parseTemperature(
  * @param {String} codestring   the codestring to parse from
  * @param {String} fncChar      the FNC-character to remove
  */
-export function parseVariableLengthWithISONumbers(
-  ai_stem: string,
-  fourthNumber: string,
-  title: string,
-  codestring: string,
-  fncChar: string
-): ParseResult<number> {
+export function parseVariableLengthWithISONumbers(params: ParserParams): ParseResult<number> {
   // an element of variable length, representing a number, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass<number>(ai_stem + fourthNumber, title, ElementType.N);
-  const offSet = ai_stem.length + 1;
-  const posOfFNC = codestring.indexOf(fncChar);
-  const numberOfDecimals = Number.parseInt(fourthNumber, 10);
+  const { codestring, ai, definition, options } = params;
+  const numberOfDecimals = Number.parseInt(codestring.substring(0, 1));
+  if (Number.isNaN(numberOfDecimals) || !(definition.dpp ?? []).includes(numberOfDecimals)) {
+    throw new InvalidAiError(ai, codestring.substring(0, 1));
+  }
+
+  const elementToReturn = new ParsedElementClass<number>(
+    ai + numberOfDecimals,
+    definition.title,
+    ElementType.N,
+  );
+  const offSet = ai.length + 1;
+  const posOfFNC = codestring.indexOf(options.fncChar ?? GROUP_SEPARATOR);
   let isoPlusNumbers = "";
   let numberPart = "";
   let codestringToReturn = "";
@@ -420,17 +378,22 @@ export function parseVariableLengthWithISONumbers(
  * @param {String} codestring   the codestring to parse from
  * @param {String} fncChar      the FNC-character to remove
  */
-export function parseVariableLengthWithISOChars(
-  ai_stem: string,
-  title: string,
-  codestring: string,
-  fncChar: string
-): ParseResult<string> {
+export function parseVariableLengthWithISOChars(params: ParserParams): ParseResult<string> {
   // an element of variable length, representing a sequence of chars, followed by
   // some ISO-code.
-  const elementToReturn = new ParsedElementClass<string>(ai_stem, title, ElementType.S);
-  const offSet = ai_stem.length;
-  const posOfFNC = codestring.indexOf(fncChar);
+  const { codestring, ai, definition, options } = params;
+  const numberOfDecimals = Number.parseInt(codestring.substring(0, 1));
+  if (Number.isNaN(numberOfDecimals) || !(definition.serial ?? []).includes(numberOfDecimals)) {
+    throw new InvalidAiError(ai, codestring.substring(0, 1));
+  }
+
+  const elementToReturn = new ParsedElementClass<string>(
+    ai + numberOfDecimals,
+    definition.title,
+    ElementType.S,
+  );
+  const offSet = ai.length + 1;
+  const posOfFNC = codestring.indexOf(options.fncChar ?? GROUP_SEPARATOR);
   let isoPlusNumbers = "";
 
   let codestringToReturn = "";

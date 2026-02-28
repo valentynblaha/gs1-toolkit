@@ -1,6 +1,24 @@
 import type { ElementType } from "./utils";
 
 export type GS1DecodedData = string | number | Date;
+export interface ParserParams {
+  codestring: string;
+  ai: string;
+  definition: AIDefinition;
+  options: ParserOptions;
+}
+
+export type ParserFunction<T> = (params: ParserParams) => ParseResult<T>;
+export interface AIDefinition {
+  propertyName: string;
+  title: string;
+  /** Decimal point position - array of valid values for AIs that support variable decimal positions */
+  dpp?: number[];
+  /** Serial suffix - array of valid values for AIs that support variable serial suffixes (e.g., 703s, 723s) */
+  serial?: number[];
+  fixedLength?: number;
+  parser: ParserFunction<GS1DecodedData>;
+}
 
 export interface ParsedElement<T> {
   ai: string;
@@ -8,7 +26,7 @@ export interface ParsedElement<T> {
   data: T;
   dataString: string;
   unit: string;
-  type: ElementType
+  type: ElementType;
 }
 
 export interface ParseResult<T> {
