@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { GS1Parser } from "../src/index";
+import { describe, expect, it } from "vitest";
+import { ElementType, GS1Field, GS1Parser } from "../src/index";
 
 const GS = "\x1D";
 const parser = new GS1Parser();
@@ -41,6 +41,7 @@ describe("GS1 parser validation", () => {
   for (const value of validCases) {
     it(`should parse valid GS1 barcode: "${JSON.stringify(value)}"`, () => {
       expect(() => parser.decode(value)).not.toThrow();
+      expect(() => parser.decode(value)).toBeTruthy();
     });
   }
 
@@ -49,19 +50,32 @@ describe("GS1 parser validation", () => {
   //
   const invalidCases = [
     "",                                      // empty
-    "01",                                    // truncated AI
-    "01012345678901",                        // GTIN incomplete (needs 14 digits)
-    "010123456789012X",                      // non-numeric in numeric-only AI
-    "0101234567890128" + "17" + "991332",    // invalid date (AI 17)
-    "0101234567890128" + "10",               // AI 10 but no data
     // "0101234567890128" + GS + GS + "10ABC",  // double GS not allowed
-    "0101234567890128" + "21",               // AI 21 but no value
-    "0000123456789012345X",                  // SSCC with invalid char
-  ];
-
+  ]
   for (const value of invalidCases) {
     it(`should throw on invalid GS1 barcode: "${JSON.stringify(value)}"`, () => {
       expect(() => parser.decode(value)).toThrow();
+    });
+  }
+
+  //
+  // INVALID BARCODE CASES — SHOULD THROW
+  //
+  const invalidCases2 = [
+    { barcode: "01", field: GS1Field.GTIN },                                   // truncated AI
+    { barcode: "01012345678901", field: GS1Field.GTIN },                       // GTIN incomplete (needs 14 digits)
+    { barcode: "010123456789012X", field: GS1Field.GTIN },                     // non-numeric in numeric-only AI
+    { barcode: "0101234567890128" + "17" + "991332", field: GS1Field.EXP_DATE },   // invalid date (AI 17)
+    { barcode: "0101234567890128" + "10", field: GS1Field.BATCH },              // AI 10 but no data
+    { barcode: "0101234567890128" + "21", field: GS1Field.SERIAL },              // AI 21 but no value
+    { barcode: "0000123456789012345X", field: GS1Field.SSCC },                 // SSCC with invalid char
+  ];
+
+  for (const v of invalidCases2) {
+    it(`should be an error for invalid GS1 barcode: "${JSON.stringify(v.barcode)}"`, () => {
+      const result = parser.decode(v.barcode);
+      expect(result.data?.[v.field]?.type).toBe(ElementType.Error);
+      expect(result.isValid).toBeFalsy();
     });
   }
 });

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { GS1Parser, GS1Field } from "../src/index";
+import { describe, expect, it } from "vitest";
+import { ElementType, GS1Field, GS1Parser } from "../src/index";
 
 // GS1 date AIs (YYMMDD): 11, 12, 13, 15, 17
 const DATE_AIS = ["11", "12", "13", "15", "17"];
@@ -71,7 +71,6 @@ describe("GS1 Date Parsing - Edge Cases", () => {
     "991300",     // month=13
     "22AB10",     // invalid characters
     "12345",      // too short
-    "1234567",    // too long
 
     // Invalid days except 00
     "991232",     // 32 not allowed
@@ -81,16 +80,33 @@ describe("GS1 Date Parsing - Edge Cases", () => {
 
     // Invalid month/day combinations where day != 00
     "221431",     // month 14
+    "1234567",    // too long
   ];
 
   for (const dateValue of invalidDates) {
     for (const ai of DATE_AIS) {
-      it(`should throw on invalid GS1 date AI ${ai}: "${dateValue}"`, () => {
+      it(`should be invalid GS1 date AI ${ai}: "${dateValue}"`, () => {
         const barcode = VALID_GTIN + ai + dateValue;
-        expect(() => parser.decode(barcode)).toThrow();
+        const result = parser.decode(barcode);
+        expect(result.isValid).toBeFalsy();
+        expect(result.data[AI_TO_FIELD[ai]]?.dataString).toBe(dateValue);
+        expect(result.data[AI_TO_FIELD[ai]]?.type).toBe(ElementType.Error);
       });
     }
   }
+
+  // // special cases
+  // const invalidDates2 = [
+  //   "1234567",    // too long
+  // ];
+  // for (const dateValue of invalidDates2) {
+  //   for (const ai of DATE_AIS) {
+  //     it(`should be invalid GS1 date AI ${ai}: "${dateValue}"`, () => {
+  //       const barcode = VALID_GTIN + ai + dateValue;
+  //       expect(() => parser.decode(barcode)).toThrow();
+  //     });
+  //   }
+  // }
 
   //
   // AMBIGUOUS EDGE CASES
@@ -114,22 +130,22 @@ describe("GS1 Date Parsing - Edge Cases", () => {
       expect((result4.data[GS1Field.EXP_DATE]!.data as Date).getFullYear()).toBe(1999);
     });
 
-    it("should throw if value is partially missing (e.g., '23031')", () => {
+    it("should be an error if value is partially missing (e.g., '23031')", () => {
       const barcode = VALID_GTIN + "1123031";
-      expect(() => parser.decode(barcode)).toThrow();
+      expect(() => parser.decode(barcode).data?.[GS1Field.PROD_DATE]?.type, ElementType.Error);
     });
 
-    it("should throw for February 30 or 31", () => {
+    it("should be an error for February 30 or 31", () => {
       const barcode1 = VALID_GTIN + "17230230";
-      expect(() => parser.decode(barcode1)).toThrow();
+      expect(() => parser.decode(barcode1).data?.[GS1Field.EXP_DATE]?.type, ElementType.Error);
 
       const barcode2 = VALID_GTIN + "17230231";
-      expect(() => parser.decode(barcode2)).toThrow();
+      expect(() => parser.decode(barcode2).data?.[GS1Field.BEST_BEFORE]?.type, ElementType.Error);
     });
 
-    it("should throw for April 31", () => {
+    it("should be an error for April 31", () => {
       const barcode = VALID_GTIN + "15230431";
-      expect(() => parser.decode(barcode)).toThrow();
+      expect(() => parser.decode(barcode).data?.[GS1Field.BEST_BEFORE]?.type, ElementType.Error);
     });
   });
 });

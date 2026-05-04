@@ -5,7 +5,7 @@ export type GS1DecodedData = string | number | Date;
 export interface ParsedElement<T> {
   ai: string;
   dataTitle: string;
-  data: T;
+  data: T | null;
   dataString: string;
   unit: string;
   type: ElementType
@@ -17,6 +17,7 @@ export interface ParseResult<T> {
 }
 
 export interface BarcodeAnswer {
+  isValid: boolean;
   codeName: string;
   denormalized: string;
   parsedCodeItems: ParsedElement<GS1DecodedData>[];
@@ -42,4 +43,9 @@ export interface ParserOptions {
    * If true, date fields are returned as UTC timestamps instead of local dates
    */
   utcTimestamps?: boolean;
+
+  /**
+   * Silently skip fields with invalid AI (only useful when fncChar is used as separator)
+   */
+  ignoreInvalidFields?: boolean;
 }

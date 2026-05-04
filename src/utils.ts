@@ -6,9 +6,10 @@ export const GROUP_SEPARATOR = String.fromCodePoint(29);
 export const NUMERIC_REGEX = /^\d+$/;
 
 export enum ElementType {
-  S = "string",
-  N = "number",
-  D = "date",
+  String = "string",
+  Number = "number",
+  Date = "date",
+  Error = "error",
   UNDEFINED = "",
 }
 
@@ -70,6 +71,7 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
   data: T;
   dataString: string;
   unit: string;
+  error?: Error;
   readonly type: ElementType = ElementType.UNDEFINED;
 
   /**
@@ -84,24 +86,29 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
    *                                  "N" for numbers and
    *                                  "D" for dates
    */
-  constructor(elementAI: string, elementDataTitle: string, elementType: ElementType) {
+  constructor(elementAI: string, elementDataTitle: string, elementType: ElementType, error?: Error) {
     this.ai = elementAI;
     this.dataTitle = elementDataTitle;
     this.unit = "";
     this.dataString = "";
 
     switch (elementType) {
-      case ElementType.S:
+      case ElementType.String:
         this.data = "" as T;
-        this.type = ElementType.S;
+        this.type = ElementType.String;
         break;
-      case ElementType.N:
+      case ElementType.Number:
         this.data = 0 as T;
-        this.type = ElementType.N;
+        this.type = ElementType.Number;
         break;
-      case ElementType.D: 
+      case ElementType.Date:
         this.data = new Date() as T;
-        this.type = ElementType.D;
+        this.type = ElementType.Date;
+        break;
+      case ElementType.Error:
+        this.data = null as T;
+        this.type = ElementType.Error;
+        this.error = error;
         break;
       default:
         this.data = "" as T;
@@ -115,6 +122,8 @@ export class ParsedElementClass<T> implements ParsedElement<T> {
  */
 export class DecodeResult {
   constructor(
+    /** barcode parsing was successful */
+    public isValid: boolean,
     /**
      * A barcode type identifier (a simple string denoting the type of barcode)
      */
@@ -127,7 +136,7 @@ export class DecodeResult {
      * The actual parsed data, presented in a dictionary
      */
     public data: Partial<Record<GS1Field, ParsedElement<GS1DecodedData>>> = {}
-  ) {}
+  ) { }
 }
 
 /**
@@ -135,13 +144,13 @@ export class DecodeResult {
  * fixed length, so the codestringToReturn may have
  * leading FNCs.
  *
- * This function eleminates these leading FNCs.
+ * This function eliminates these leading FNCs.
  *
  * @param   {String} stringToClean string which has to be cleaned
  * @param   {String} fncChar      the FNC-character to remove
  * @returns {String} the cleaned string
  */
-export function cleanCodestring(stringToClean: string, fncChar: string): string {
+export function cleanCodeString(stringToClean: string, fncChar: string): string {
   let result = stringToClean;
   let firstChar = result.slice(0, 1);
   while (firstChar === fncChar) {

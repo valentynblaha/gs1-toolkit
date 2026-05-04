@@ -15,7 +15,7 @@ class GS1Parser {
    * @param options Barcode parser options
    */
   constructor(options?: ParserOptions) {
-    this.options = {...defaultOptions, ...options};
+    this.options = { ...defaultOptions, ...options };
   }
 
   /**
@@ -41,7 +41,7 @@ class GS1Parser {
       }
     }
 
-    return new DecodeResult(parsed.codeName, parsed.denormalized, filteredItems);
+    return new DecodeResult(parsed.isValid, parsed.codeName, parsed.denormalized, filteredItems);
   }
 }
 

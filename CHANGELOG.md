@@ -2,6 +2,16 @@
 
 All changes to this project are documented in this file.
 
+## v2.0.0
+
+- Error handling changes:
+- for a faulty field (ex. wrong date format) behavior has changed:
+  - it won't throw an error, but mark field type as 'error' and the detailed error will be in the field 'error'.
+  - dataString attribute will contain the raw value.
+  - isValid field is introduced to flag if any field has parsing issue
+  - not field related error: ex. invalid AI number will throw an error
+- fix UTC date parsing
+
 ## v1.5.0
 
 ### Added

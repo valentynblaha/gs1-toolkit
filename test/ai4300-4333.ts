@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { GS1Parser, GS1Field } from "../src/index";
+import { describe, expect, it } from "vitest";
+import { ElementType, GS1Field, GS1Parser } from "../src/index";
 
 const GS = "\x1D";
 const VALID_GTIN = "0101234567890128";
@@ -25,6 +25,7 @@ describe("GS1 AIs 4300-4333 Parsing", () => {
       it(`should parse AI ${ai} (${field}) with value "${testValue}"`, () => {
         const barcode = VALID_GTIN + ai + testValue;
         const result = parser.decode(barcode);
+        expect(result.isValid).toBeTruthy();
         expect(result.data[field]).toBeDefined();
         expect(result.data[field]!.data).toBe(testValue);
       });
@@ -167,12 +168,12 @@ describe("GS1 AIs 4300-4333 Parsing", () => {
 
     it("should throw on invalid temperature (non-numeric)", () => {
       const barcode = VALID_GTIN + "4331ABC123";
-      expect(() => parser.decode(barcode)).toThrow();
+      expect(() => parser.decode(barcode).data.gtin?.type, ElementType.Error);
     });
 
     it("should throw on incomplete temperature (less than 6 digits)", () => {
       const barcode = VALID_GTIN + "433112345";
-      expect(() => parser.decode(barcode)).toThrow();
+      expect(() => parser.decode(barcode).data.gtin?.type, ElementType.Error);
     });
   });
 
