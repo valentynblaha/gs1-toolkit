@@ -421,6 +421,12 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
             case "3":
               // Applicable Amount Payable with ISO Currency Code (Variable Measure Trade Item)
               return parseVariableLengthWithISONumbers("393", fourthNumber, "PRICE", codestring, fncChar);
+            case "4":
+              // Percentage discount of a coupon
+              return parseVariableLengthMeasure("394", fourthNumber, "PRCNT OFF", "", codestring, fncChar);
+            case "5":
+              // Amount payable per unit of measure single monetary area (variable measure trade item)
+              return parseVariableLengthMeasure("395", fourthNumber, "PRICE/UoM", "", codestring, fncChar);
             default:
               throw new InvalidAiError("39", thirdNumber);
           }
@@ -605,10 +611,22 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
                   return parseVariableLength("4323", "SIG REQUIRED", codestring, fncChar, 1);
                 case "4":
                   // Not before delivery date/time
-                  return parseDatetime("4324", "NBEF DEL DT", codestring, parserOptions.utcTimestamps, fncChar);
+                  return parseDatetime(
+                    "4324",
+                    "NBEF DEL DT",
+                    codestring,
+                    parserOptions.utcTimestamps,
+                    fncChar,
+                  );
                 case "5":
                   // Not before delivery date/time
-                  return parseDatetime("4325", "NAFT DEL DT", codestring, parserOptions.utcTimestamps, fncChar);
+                  return parseDatetime(
+                    "4325",
+                    "NAFT DEL DT",
+                    codestring,
+                    parserOptions.utcTimestamps,
+                    fncChar,
+                  );
                 case "6":
                   // Release date
                   return parseDate("4326", "REL DATE", codestring, parserOptions.utcTimestamps, fncChar);
@@ -666,7 +684,13 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
                   return parseVariableLength("7005", "CATCH AREA", codestring, fncChar, 12);
                 case "6":
                   // First freeze date
-                  return parseDate("7006", "FIRST FREEZE DATE", codestring, parserOptions.utcTimestamps, fncChar);
+                  return parseDate(
+                    "7006",
+                    "FIRST FREEZE DATE",
+                    codestring,
+                    parserOptions.utcTimestamps,
+                    fncChar,
+                  );
                 case "7":
                   // Harvest date
                   // FIXME: actually a double date (start date - end date)
@@ -687,7 +711,13 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
                   return parseVariableLength("7010", "PROD METHOD", codestring, fncChar, 2);
                 case "1":
                   // Test by date
-                  return parseDatetime("7011", "TEST BY DATE", codestring, parserOptions.utcTimestamps, fncChar);
+                  return parseDatetime(
+                    "7011",
+                    "TEST BY DATE",
+                    codestring,
+                    parserOptions.utcTimestamps,
+                    fncChar,
+                  );
                 default:
                   throw new InvalidAiError("701", fourthNumber);
               }
@@ -711,6 +741,7 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
             case "3":
               // Approval Number of Processor with ISO Country Code
               // Title and stem for parsing are build from 4th number:
+              // TODO: fourth number validation: 0-9
               return parseVariableLengthWithISOChars(
                 "703" + fourthNumber,
                 "PROCESSOR # " + fourthNumber,
@@ -760,6 +791,7 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
           }
         case "2":
           thirdNumber = codestring.slice(2, 3);
+          fourthNumber = codestring.slice(3, 4);
           switch (thirdNumber) {
             case "3":
               switch (fourthNumber) {
@@ -800,10 +832,13 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
               switch (fourthNumber) {
                 case "0":
                   // Protocol ID
-                  return parseVariableLength("724", "PROTOCOL", codestring, fncChar);
+                  return parseVariableLength("7240", "PROTOCOL", codestring, fncChar);
                 case "1":
                   // AIDC media type
-                  return parseVariableLength("7041", "AIDC MEDIA TYPE", codestring, fncChar);
+                  return parseVariableLength("7241", "AIDC MEDIA TYPE", codestring, fncChar);
+                case "2":
+                  // Version control number
+                  return parseVariableLength("7242", "VCN", codestring, fncChar);
                 default:
                   throw new InvalidAiError("724", fourthNumber);
               }
@@ -892,6 +927,9 @@ function parseNextElement(codestring: string, parserOptions: ParserOptions): Par
                 case "1":
                   // Component / Part Identifier Serial Number (CPID SERIAL)
                   return parseVariableLength("8011", "CPID SERIAL", codestring, fncChar);
+                case "4":
+                  // Highly Individualised Device Registration Identifier (HIDRI)
+                  return parseVariableLength("8014", "MUDI", codestring, fncChar);
                 case "7":
                   // Global Service Relation Number to identify the relationship between an organisation offering services and the provider of services
                   return parseVariableLength("8017", "GSRN - PROVIDER", codestring, fncChar, 18); // should be 18 digits long
@@ -1026,7 +1064,7 @@ function parseBarcode(barcode: string, parserOptions: ParserOptions): BarcodeAns
     isValid: true,
     codeName: "",
     denormalized: "",
-    parsedCodeItems: []
+    parsedCodeItems: [],
   }; // the object to return
   let restOfBarcode = ""; // the rest of the barcode, when first
   // elements are spliced away
@@ -1118,7 +1156,7 @@ function parseBarcode(barcode: string, parserOptions: ParserOptions): BarcodeAns
       if (parserOptions.ignoreInvalidFields) {
         const pos = restOfBarcode.indexOf(parserOptions.fncChar!);
         if (pos == -1) {
-          restOfBarcode = ''; // finish
+          restOfBarcode = ""; // finish
         } else {
           restOfBarcode = restOfBarcode.slice(Math.max(1, pos)); // we have to step at least 1
         }

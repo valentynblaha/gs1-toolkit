@@ -2,6 +2,16 @@
 
 All changes to this project are documented in this file.
 
+## v2.1.0
+
+### Added
+
+- Parsing for AIs 394n (PRCNT OFF), 395n (PRICE/UoM), 7242 (VCN) and 8014 (HIDRI)
+
+### Fixed
+
+- Could not parse AIs 723x through 725x
+
 ## v2.0.0
 
 - Error handling changes:
