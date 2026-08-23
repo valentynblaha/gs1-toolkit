@@ -342,7 +342,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square metres
   "334": {
-    propertyName: "areaSquareInches",
+    propertyName: "areaSquareMetersLog",
     title: "AREA (m2), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -350,7 +350,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, litres
   "335": {
-    propertyName: "areaSquareFeet",
+    propertyName: "volumeLitresLog",
     title: "VOLUME (l), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -358,7 +358,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, cubic metres
   "336": {
-    propertyName: "areaSquareYards",
+    propertyName: "volumeCubicMetersLog",
     title: "VOLUME (m3), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -366,7 +366,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Kilograms per square metre, yes, the ISO code for this _is_ "28".
   "337": {
-    propertyName: "areaSquareMetersLog",
+    propertyName: "kgPerSquareMeters",
     title: "KG PER m²",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -374,7 +374,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic weight, pounds
   "340": {
-    propertyName: "netWeightOunces",
+    propertyName: "grossWeightPounds",
     title: "GROSS WEIGHT (lb)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -382,7 +382,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Length or first dimension, inches
   "341": {
-    propertyName: "netVolumeQuarts",
+    propertyName: "lengthInchesLog",
     title: "LENGTH (i), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -390,7 +390,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Length or first dimension, feet
   "342": {
-    propertyName: "netVolumeGallons",
+    propertyName: "lengthFeetLog",
     title: "LENGTH (f), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -398,7 +398,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Length or first dimension, yards
   "343": {
-    propertyName: "volumeCubicInches",
+    propertyName: "lengthYardsLog",
     title: "LENGTH (y), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -406,7 +406,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Width, diameter, or second dimension, inches
   "344": {
-    propertyName: "volumeCubicFeet",
+    propertyName: "widthInchesLog",
     title: "WIDTH (i), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -414,7 +414,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Width, diameter, or second dimension, feet
   "345": {
-    propertyName: "volumeCubicYards",
+    propertyName: "widthFeetLog",
     title: "WIDTH (f), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -422,7 +422,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Width, diameter, or second dimension, yard
   "346": {
-    propertyName: "volumeCubicMetersLog",
+    propertyName: "widthYardsLog",
     title: "WIDTH (y), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -454,7 +454,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square inches (Variable Measure Trade Item)
   "350": {
-    propertyName: "grossWeightLb",
+    propertyName: "areaSquareInches",
     title: "AREA (i2)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -462,7 +462,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square feet (Variable Measure Trade Item)
   "351": {
-    propertyName: "lengthInchesLog",
+    propertyName: "areaSquareFeet",
     title: "AREA (f2)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -470,7 +470,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square yards (Variable Measure Trade Item)
   "352": {
-    propertyName: "lengthFeetLog",
+    propertyName: "areaSquareYards",
     title: "AREA (y2)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -478,7 +478,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square inches
   "353": {
-    propertyName: "lengthYardsLog",
+    propertyName: "areaSquareInchesLog",
     title: "AREA (i2), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -486,7 +486,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square feet
   "354": {
-    propertyName: "widthInchesLog",
+    propertyName: "areaSquareFeetLog",
     title: "AREA (f2), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -494,7 +494,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Area, square yards
   "355": {
-    propertyName: "widthFeetLog",
+    propertyName: "areaSquareYardsLog",
     title: "AREA (y2), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -502,7 +502,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net weight, troy ounces (Variable Measure Trade Item)
   "356": {
-    propertyName: "widthYardsLog",
+    propertyName: "netWeightTroyOunces",
     title: "NET WEIGHT (t)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -510,7 +510,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net weight (or volume), ounces (Variable Measure Trade Item)
   "357": {
-    propertyName: "heightInchesLog",
+    propertyName: "netVolumeOunces",
     title: "NET VOLUME (oz)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -518,7 +518,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net volume, quarts (Variable Measure Trade Item)
   "360": {
-    propertyName: "grossWeightOunces",
+    propertyName: "netVolumeQuarts",
     title: "NET VOLUME (q)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -526,7 +526,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net volume, gallons U.S. (Variable Measure Trade Item)
   "361": {
-    propertyName: "netVolumeFluidOunces",
+    propertyName: "netVolumeGallons",
     title: "NET VOLUME (g)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -534,7 +534,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, quarts
   "362": {
-    propertyName: "grossVolumeQuarts",
+    propertyName: "volumeQuartsLog",
     title: "VOLUME (q), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -542,7 +542,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, gallons U.S.
   "363": {
-    propertyName: "grossVolumeGallons",
+    propertyName: "volumeGallonsLog",
     title: "VOLUME (g), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -550,7 +550,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net volume, cubic inches (Variable Measure Trade Item)
   "364": {
-    propertyName: "volumeCubicInchesLog",
+    propertyName: "volumeCubicInches",
     title: "VOLUME (i3)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -558,7 +558,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net volume, cubic feet (Variable Measure Trade Item)
   "365": {
-    propertyName: "volumeCubicFeetLog",
+    propertyName: "volumeCubicFeet",
     title: "VOLUME (f3)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -566,7 +566,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Net volume, cubic yards (Variable Measure Trade Item)
   "366": {
-    propertyName: "volumeCubicYardsLog",
+    propertyName: "volumeCubicYards",
     title: "VOLUME (y3)",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -574,7 +574,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, cubic inches
   "367": {
-    propertyName: "logisticVolumeCubicInches",
+    propertyName: "volumeCubicInchesLog",
     title: "VOLUME (in3), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -582,7 +582,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, cubic feet
   "368": {
-    propertyName: "logisticVolumeCubicFeet",
+    propertyName: "volumeCubicFeetLog",
     title: "VOLUME (ft3), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -590,7 +590,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Logistic volume, cubic yards
   "369": {
-    propertyName: "logisticVolumeCubicYards",
+    propertyName: "volumeCubicYardsLog",
     title: "VOLUME (yd3), log",
     dpp: [0, 1, 2, 3, 4, 5],
     fixedLength: 6,
@@ -634,7 +634,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   "394": {
     propertyName: "percentDiscount",
     title: "PRCNT OFF",
-    dpp: [0, 1],
+    dpp: [0, 1, 2, 3],
     parser: parseVariableLength,
   },
   // Amount payable per unit of measure single monetary area (variable measure trade item)
@@ -1062,7 +1062,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // Test by date
   "7011": {
-    propertyName: "testByDate",
+    propertyName: "testBy",
     title: "TEST BY DATE",
     parser: parseVariableLength,
   },
@@ -1118,7 +1118,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // PROTOCOL
   "7240": {
-    propertyName: "protocolId",
+    propertyName: "protocol",
     title: "PROTOCOL",
     parser: parseVariableLength,
   },
@@ -1166,7 +1166,7 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // SUFFIX
   "7255": {
-    propertyName: "nameSuffix",
+    propertyName: "suffix",
     title: "SUFFIX",
     parser: parseVariableLength,
   },
@@ -1184,13 +1184,13 @@ export const AIDefinitions: Record<string, AIDefinition> = {
   },
   // BIRTH SEQUENCE
   "7258": {
-    propertyName: "birthSequence",
+    propertyName: "birthSeq",
     title: "BIRTH SEQUENCE",
     parser: parseVariableLength,
   },
   // BABY
   "7259": {
-    propertyName: "babyName",
+    propertyName: "baby",
     title: "BABY",
     parser: parseVariableLength,
   },
@@ -1272,10 +1272,10 @@ export const AIDefinitions: Record<string, AIDefinition> = {
     title: "GMN",
     parser: parseVariableLength,
   },
-  // MUDI
+  // Healthcare item reference identifier
   "8014": {
-    propertyName: "mudi",
-    title: "MUDI",
+    propertyName: "hidri",
+    title: "HIDRI",
     parser: parseVariableLength,
   },
   // Global Service Relation Number - Provider
